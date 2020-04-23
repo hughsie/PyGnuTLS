@@ -18,6 +18,7 @@ gnutls_typed_vdata_st = c_void_p
 gnutls_x509_dn_t = c_void_p
 gnutls_x509_trust_list_t = c_void_p
 
+
 # Enumerations
 #
 
@@ -117,6 +118,12 @@ gnutls_priority_t = POINTER(gnutls_priority_st)
 
 class gnutls_datum_t(Structure):
     _fields_ = [("data", POINTER(c_ubyte)), ("size", c_uint)]
+
+    def get_string_and_free(self):
+        res = string_at(self.data, self.size)
+        gnutls_free(self.data)
+        self.data = None
+        return res
 
 
 class gnutls_params_st(Structure):
@@ -221,6 +228,20 @@ class api_aead_cipher_hd_st(Structure):
 
 
 gnutls_aead_cipher_hd_t = POINTER(api_aead_cipher_hd_st)
+
+
+class gnutls_privkey_int(Structure):
+    _fields_ = []
+
+
+gnutls_privkey_t = POINTER(gnutls_privkey_int)
+
+
+class gnutls_pubkey_int(Structure):
+    _fields_ = []
+
+
+gnutls_pubkey_t = POINTER(gnutls_pubkey_int)
 
 
 class cert(Union):
