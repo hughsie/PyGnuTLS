@@ -209,6 +209,13 @@ class gnutls_openpgp_privkey_int(Structure):
 gnutls_openpgp_privkey_t = POINTER(gnutls_openpgp_privkey_int)
 
 
+class api_aead_cipher_hd_st(Structure):
+    _fields_ = []
+
+
+gnutls_aead_cipher_hd_t = POINTER(api_aead_cipher_hd_st)
+
+
 class cert(Union):
     _fields_ = [("x509", POINTER(gnutls_x509_crt_t)), ("pgp", gnutls_openpgp_crt_t)]
 
