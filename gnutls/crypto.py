@@ -18,13 +18,14 @@ __all__ = [
 import re
 from ctypes import *
 
-from gnutls.constants import X509_FMT_DER, X509_FMT_PEM
 from gnutls.errors import *
 
 from gnutls.library.constants import (
     GNUTLS_SAN_DNSNAME,
     GNUTLS_SAN_RFC822NAME,
     GNUTLS_SAN_URI,
+    GNUTLS_X509_FMT_DER,
+    GNUTLS_X509_FMT_PEM,
 )
 from gnutls.library.constants import (
     GNUTLS_SAN_IPADDRESS,
@@ -141,7 +142,7 @@ class Pkcs7(object):
     def __del__(self):
         self.__deinit(self._c_object)
 
-    def import_signature(self, buf, format=X509_FMT_PEM):
+    def import_signature(self, buf, format=GNUTLS_X509_FMT_PEM):
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
         gnutls_pkcs7_import(self._c_object, byref(data), format)
 
@@ -205,7 +206,7 @@ class Pkcs7(object):
                 flags,
             )
 
-    def export(self, format=X509_FMT_PEM):
+    def export(self, format=GNUTLS_X509_FMT_PEM):
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
         try:
@@ -519,7 +520,7 @@ class X509Certificate(object):
         instance._alternative_names = None
         return instance
 
-    def __init__(self, buf, format=X509_FMT_PEM):
+    def __init__(self, buf, format=GNUTLS_X509_FMT_PEM):
         gnutls_x509_crt_init(byref(self._c_object))
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
         gnutls_x509_crt_import(self._c_object, byref(data), format)
@@ -635,7 +636,7 @@ class X509Certificate(object):
         if not self.has_hostname(hostname):
             raise CertificateError("certificate doesn't match hostname")
 
-    def export(self, format=X509_FMT_PEM):
+    def export(self, format=GNUTLS_X509_FMT_PEM):
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
         try:
@@ -657,7 +658,7 @@ class X509PrivateKey(object):
         instance._c_object = gnutls_x509_privkey_t()
         return instance
 
-    def __init__(self, buf, format=X509_FMT_PEM):
+    def __init__(self, buf, format=GNUTLS_X509_FMT_PEM):
         gnutls_x509_privkey_init(byref(self._c_object))
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
         gnutls_x509_privkey_import(self._c_object, byref(data), format)
@@ -665,7 +666,7 @@ class X509PrivateKey(object):
     def __del__(self):
         self.__deinit(self._c_object)
 
-    def export(self, format=X509_FMT_PEM):
+    def export(self, format=GNUTLS_X509_FMT_PEM):
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
         try:
@@ -707,7 +708,7 @@ class X509CRL(object):
         instance._c_object = gnutls_x509_crl_t()
         return instance
 
-    def __init__(self, buf, format=X509_FMT_PEM):
+    def __init__(self, buf, format=GNUTLS_X509_FMT_PEM):
         gnutls_x509_crl_init(byref(self._c_object))
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
         gnutls_x509_crl_import(self._c_object, byref(data), format)
@@ -745,7 +746,7 @@ class X509CRL(object):
         if self.is_revoked(cert):
             raise CertificateRevokedError("%s was revoked" % cert_name)
 
-    def export(self, format=X509_FMT_PEM):
+    def export(self, format=GNUTLS_X509_FMT_PEM):
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
         try:

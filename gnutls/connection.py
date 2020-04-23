@@ -10,7 +10,7 @@ __all__ = [
 ]
 
 from time import time
-from socket import SHUT_RDWR as SOCKET_SHUT_RDWR
+from socket import GNUTLS_SHUT_RDWR as SOCKET_SHUT_RDWR
 
 from _ctypes import PyObj_FromPtr
 from ctypes import *
@@ -113,7 +113,7 @@ class X509Credentials(object):
         gnutls_certificate_set_retrieve_function(self._c_object, _retrieve_certificate)
         self._max_depth = 5
         self._max_bits = 8200
-        self._type = CRED_CERTIFICATE
+        self._type = GNUTLS_CRD_CERTIFICATE
         self._cert = cert
         self._key = key
         self._identities = tuple(identities)
@@ -210,7 +210,7 @@ class X509Credentials(object):
 
 
 class TLSContextServerOptions(object):
-    def __init__(self, certificate_request=CERT_REQUEST):
+    def __init__(self, certificate_request=GNUTLS_CERT_REQUEST):
         self.certificate_request = certificate_request
 
 
@@ -316,7 +316,7 @@ class Session(object):
         if list_size.value == 0:
             return None
         cert = cert_list[0]
-        return X509Certificate(string_at(cert.data, cert.size), X509_FMT_DER)
+        return X509Certificate(string_at(cert.data, cert.size), GNUTLS_X509_FMT_DER)
 
     # Status checking after an operation was interrupted (these properties are
     # only useful to check after an operation was interrupted, otherwise their
@@ -366,7 +366,7 @@ class Session(object):
         if alert:
             gnutls_alert_send(self._c_object, GNUTLS_AL_FATAL, alert)
 
-    def bye(self, how=SHUT_RDWR):
+    def bye(self, how=GNUTLS_SHUT_RDWR):
         gnutls_bye(self._c_object, how)
 
     def shutdown(self, how=SOCKET_SHUT_RDWR):
