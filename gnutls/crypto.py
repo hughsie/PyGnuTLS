@@ -15,16 +15,33 @@ __all__ = [
     "Cipher",
 ]
 
-import re
-from ctypes import *
+import math
 
-from gnutls.errors import *
+import re
+from ctypes import (
+    c_char_p,
+    POINTER,
+    c_uint,
+    c_void_p,
+    c_ubyte,
+    c_ulong,
+    c_size_t,
+    cast,
+    byref,
+    sizeof,
+    create_string_buffer,
+)
+
+from gnutls.errors import (
+    CertificateError,
+    CertificateRevokedError,
+    RequestedDataNotAvailable,
+)
 
 from gnutls.library.constants import (
     GNUTLS_SAN_DNSNAME,
     GNUTLS_SAN_RFC822NAME,
     GNUTLS_SAN_URI,
-    GNUTLS_X509_FMT_DER,
     GNUTLS_X509_FMT_PEM,
 )
 from gnutls.library.constants import (
@@ -32,15 +49,110 @@ from gnutls.library.constants import (
     GNUTLS_SAN_OTHERNAME,
     GNUTLS_SAN_DN,
 )
-from gnutls.library.constants import GNUTLS_E_SHORT_MEMORY_BUFFER
-from gnutls.library.constants import GNUTLS_PK_RSA, GNUTLS_PK_RSA_PSS, GNUTLS_PK_DSA
 from gnutls.library.constants import (
     GNUTLS_PK_ECDSA,
     GNUTLS_PK_ECDH_X25519,
     GNUTLS_PK_EDDSA_ED25519,
+    GNUTLS_PK_RSA,
+    GNUTLS_PK_RSA_PSS,
+    GNUTLS_PK_DSA,
 )
-from gnutls.library.types import *
-from gnutls.library.functions import *
+
+# from gnutls.library.types import *
+
+from gnutls.library.functions import (
+    gnutls_x509_trust_list_deinit,
+    gnutls_x509_trust_list_t,
+    gnutls_aead_cipher_decrypt,
+    gnutls_aead_cipher_deinit,
+    gnutls_aead_cipher_encrypt,
+    gnutls_aead_cipher_hd_t,
+    gnutls_aead_cipher_init,
+    gnutls_cipher_add_auth,
+    gnutls_cipher_decrypt2,
+    gnutls_cipher_deinit,
+    gnutls_cipher_encrypt2,
+    gnutls_cipher_get_block_size,
+    gnutls_cipher_hd_t,
+    gnutls_cipher_init,
+    gnutls_cipher_set_iv,
+    gnutls_cipher_tag,
+    gnutls_datum_t,
+    gnutls_dh_params_deinit,
+    gnutls_dh_params_generate2,
+    gnutls_dh_params_init,
+    gnutls_dh_params_t,
+    gnutls_digest_algorithm_t,
+    gnutls_pkcs7_deinit,
+    gnutls_pkcs7_export,
+    gnutls_pkcs7_get_signature_count,
+    gnutls_pkcs7_import,
+    gnutls_pkcs7_init,
+    gnutls_pkcs7_sign,
+    gnutls_pkcs7_t,
+    gnutls_pkcs7_verify,
+    gnutls_pkcs7_verify_direct,
+    gnutls_privkey_decrypt_data,
+    gnutls_privkey_deinit,
+    gnutls_privkey_export_dsa_raw,
+    gnutls_privkey_export_rsa_raw,
+    gnutls_privkey_generate,
+    gnutls_privkey_get_pk_algorithm,
+    gnutls_privkey_import_tpm_url,
+    gnutls_privkey_import_url,
+    gnutls_privkey_import_x509,
+    gnutls_privkey_init,
+    gnutls_privkey_sign_data,
+    gnutls_privkey_sign_hash,
+    gnutls_privkey_t,
+    gnutls_pubkey_deinit,
+    gnutls_pubkey_encrypt_data,
+    gnutls_pubkey_export_dsa_raw,
+    gnutls_pubkey_export_rsa_raw,
+    gnutls_pubkey_get_pk_algorithm,
+    gnutls_pubkey_get_preferred_hash_algorithm,
+    gnutls_pubkey_import_dsa_raw,
+    gnutls_pubkey_import_rsa_raw,
+    gnutls_pubkey_import_tpm_url,
+    gnutls_pubkey_import_url,
+    gnutls_pubkey_import_x509,
+    gnutls_pubkey_init,
+    gnutls_pubkey_t,
+    gnutls_pubkey_verify_data2,
+    gnutls_pubkey_verify_hash2,
+    gnutls_typed_vdata_st,
+    gnutls_x509_crl_deinit,
+    gnutls_x509_crl_export,
+    gnutls_x509_crl_get_crt_count,
+    gnutls_x509_crl_get_issuer_dn,
+    gnutls_x509_crl_get_version,
+    gnutls_x509_crl_import,
+    gnutls_x509_crl_init,
+    gnutls_x509_crl_t,
+    gnutls_x509_crt_check_hostname,
+    gnutls_x509_crt_check_issuer,
+    gnutls_x509_crt_check_revocation,
+    gnutls_x509_crt_deinit,
+    gnutls_x509_crt_export,
+    gnutls_x509_crt_get_activation_time,
+    gnutls_x509_crt_get_dn,
+    gnutls_x509_crt_get_expiration_time,
+    gnutls_x509_crt_get_issuer_dn,
+    gnutls_x509_crt_get_serial,
+    gnutls_x509_crt_get_subject_alt_name,
+    gnutls_x509_crt_get_version,
+    gnutls_x509_crt_import,
+    gnutls_x509_crt_init,
+    gnutls_x509_crt_t,
+    gnutls_x509_privkey_deinit,
+    gnutls_x509_privkey_export,
+    gnutls_x509_privkey_import,
+    gnutls_x509_privkey_init,
+    gnutls_x509_privkey_t,
+    gnutls_x509_trust_list_add_cas,
+    gnutls_x509_trust_list_add_trust_mem,
+    gnutls_x509_trust_list_init,
+)
 
 
 class X509NameMeta(type):
@@ -58,7 +170,7 @@ class X509NameMeta(type):
         instance = type.__new__(cls, name, bases, dic)
         instance.ids = X509NameMeta.long_names.values()
         for long_name, short_name in X509NameMeta.long_names.items():
-            ## Map a long_name property to the short_name attribute
+            # Map a long_name property to the short_name attribute
             cls.add_property(instance, long_name, short_name)
         return instance
 
@@ -67,10 +179,9 @@ class X509NameMeta(type):
 
 
 class X509Name(str, metaclass=X509NameMeta):
-
     def __init__(self, dname):
         str.__init__(self)
-        pairs = [x.replace("\,", ",") for x in re.split(r"(?<!\\\\),", dname.decode())]
+        pairs = [x.replace("\\,", ",") for x in re.split(r"(?<!\\\\),", dname.decode())]
         for pair in pairs:
             try:
                 name, value = pair.split("=", 1)
@@ -306,7 +417,11 @@ class PrivateKey(object):
             gnutls_privkey_import_url(pk._c_object, uri.encode(), flags)
         else:
             gnutls_privkey_import_tpm_url(
-                pk._c_object, uri.encode(), srk_password.encode(), key_password.encode(), flags
+                pk._c_object,
+                uri.encode(),
+                srk_password.encode(),
+                key_password.encode(),
+                flags,
             )
 
         algo = gnutls_privkey_get_pk_algorithm(pk._c_object, None)
@@ -582,7 +697,8 @@ class X509Certificate(object):
                 self._c_object, cast(byref(serial), c_void_p), byref(size)
             )
         except MemoryError:
-            import struct, sys
+            import struct
+            import sys
 
             serial = create_string_buffer(size.value * sizeof(c_void_p))
             gnutls_x509_crt_get_serial(
@@ -622,7 +738,7 @@ class X509Certificate(object):
     def has_hostname(self, hostname):
         """Return True if the hostname matches the DNSName/IPAddress subject alternative name extension
            of this certificate, False otherwise."""
-        ## For details see http://www.ietf.org/rfc/rfc2459.txt, section 4.2.1.7 Subject Alternative Name
+        # For details see http://www.ietf.org/rfc/rfc2459.txt, section 4.2.1.7 Subject Alternative Name
         return bool(gnutls_x509_crt_check_hostname(self._c_object, hostname))
 
     def check_issuer(self, issuer):

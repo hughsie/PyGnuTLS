@@ -1,23 +1,30 @@
 """GNUTLS library errors"""
 
-from gnutls.errors import *
-from gnutls.errors import __all__
+from gnutls.errors import (
+    CertificateError,
+    CertificateAuthorityError,
+    CertificateSecurityError,
+    CertificateExpiredError,
+    CertificateRevokedError,
+    GNUTLSError,
+    OperationWouldBlock,
+    OperationInterrupted,
+    RequestedDataNotAvailable,
+)
 
 from gnutls.library.constants import (
-    GNUTLS_E_AGAIN,
-    GNUTLS_E_INTERRUPTED,
-    GNUTLS_E_NO_CERTIFICATE_FOUND,
-)
-from gnutls.library.constants import GNUTLS_E_MEMORY_ERROR, GNUTLS_E_SHORT_MEMORY_BUFFER
-from gnutls.library.constants import (
-    GNUTLS_E_FATAL_ALERT_RECEIVED,
     GNUTLS_A_BAD_CERTIFICATE,
-)
-from gnutls.library.constants import GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE
-from gnutls.library.constants import GNUTLS_A_UNKNOWN_CA, GNUTLS_A_INSUFFICIENT_SECURITY
-from gnutls.library.constants import (
     GNUTLS_A_CERTIFICATE_EXPIRED,
     GNUTLS_A_CERTIFICATE_REVOKED,
+    GNUTLS_A_UNKNOWN_CA,
+    GNUTLS_A_INSUFFICIENT_SECURITY,
+    GNUTLS_E_AGAIN,
+    GNUTLS_E_FATAL_ALERT_RECEIVED,
+    GNUTLS_E_INTERRUPTED,
+    GNUTLS_E_MEMORY_ERROR,
+    GNUTLS_E_SHORT_MEMORY_BUFFER,
+    GNUTLS_E_NO_CERTIFICATE_FOUND,
+    GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE,
 )
 from gnutls.library.functions import gnutls_strerror, gnutls_alert_get
 
@@ -78,7 +85,6 @@ class ErrorHandler(object):
 
 
 # Attach the error checking function to all functions returning integers
-#
 from gnutls.library import functions
 from ctypes import c_int, c_long
 
@@ -88,5 +94,3 @@ for func in (
     if name in functions.__all__ and obj.restype in (c_int, c_long)
 ):
     func.errcheck = ErrorHandler.check_status
-
-del c_int, c_long, func, functions

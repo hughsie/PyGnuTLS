@@ -7,11 +7,6 @@ import os
 import time
 
 from gnutls.crypto import *
-<<<<<<< HEAD
-=======
-from gnutls.library.constants import *
-from gnutls.errors import *
->>>>>>> 91c40ac... Use the library constants directly
 
 script_path = os.path.realpath(os.path.dirname(sys.argv[0]))
 certs_path = os.path.join(script_path, "certs")

@@ -13,28 +13,51 @@ from time import time
 from socket import GNUTLS_SHUT_RDWR as SOCKET_SHUT_RDWR
 
 from _ctypes import PyObj_FromPtr
-from ctypes import *
+from ctypes import (
+    c_char_p,
+    POINTER,
+    c_uint,
+    c_void_p,
+    string_at,
+    c_size_t,
+    byref,
+    cast,
+    create_string_buffer,
+)
 
-from gnutls.validators import *
-from gnutls.constants import *
-from gnutls.crypto import *
-from gnutls.errors import *
+from gnutls.crypto import X509Identity, X509Certificate
+
+from gnutls.errors import (
+    CertificateAuthorityError,
+    CertificateError,
+    CertificateExpiredError,
+    CertificateRevokedError,
+    CertificateSecurityError,
+    RequestedDataNotAvailable,
+    GNUTLSError,
+)
 
 from gnutls.library.constants import GNUTLS_SERVER, GNUTLS_CLIENT, GNUTLS_CRT_X509
 from gnutls.library.constants import (
     GNUTLS_CERT_INVALID,
+    GNUTLS_CERT_REQUEST,
     GNUTLS_CERT_REVOKED,
     GNUTLS_CERT_INSECURE_ALGORITHM,
+    GNUTLS_X509_FMT_DER,
+    GNUTLS_SHUT_RDWR,
 )
 from gnutls.library.constants import (
     GNUTLS_CERT_SIGNER_NOT_FOUND,
     GNUTLS_CERT_SIGNER_NOT_CA,
 )
-from gnutls.library.constants import GNUTLS_AL_FATAL, GNUTLS_A_BAD_CERTIFICATE
-from gnutls.library.constants import GNUTLS_A_UNKNOWN_CA, GNUTLS_A_INSUFFICIENT_SECURITY
 from gnutls.library.constants import (
     GNUTLS_A_CERTIFICATE_EXPIRED,
     GNUTLS_A_CERTIFICATE_REVOKED,
+    GNUTLS_CRD_CERTIFICATE,
+    GNUTLS_AL_FATAL,
+    GNUTLS_A_BAD_CERTIFICATE,
+    GNUTLS_A_UNKNOWN_CA,
+    GNUTLS_A_INSUFFICIENT_SECURITY,
 )
 from gnutls.library.constants import GNUTLS_NAME_DNS
 from gnutls.library.types import (
@@ -44,7 +67,49 @@ from gnutls.library.types import (
 )
 from gnutls.library.types import gnutls_certificate_retrieve_function
 from gnutls.library.types import gnutls_priority_t
-from gnutls.library.functions import *
+
+from gnutls.library.functions import (
+    gnutls_alert_send,
+    gnutls_bye,
+    gnutls_certificate_allocate_credentials,
+    gnutls_certificate_free_credentials,
+    gnutls_certificate_get_peers,
+    gnutls_certificate_server_set_request,
+    gnutls_certificate_set_retrieve_function,
+    gnutls_certificate_set_verify_limits,
+    gnutls_certificate_set_x509_key,
+    gnutls_certificate_set_x509_trust,
+    gnutls_certificate_type_get,
+    gnutls_certificate_verify_peers2,
+    gnutls_cipher_get,
+    gnutls_cipher_get_name,
+    gnutls_compression_get,
+    gnutls_compression_get_name,
+    gnutls_credentials_clear,
+    gnutls_credentials_set,
+    gnutls_deinit,
+    gnutls_handshake,
+    gnutls_handshake_set_private_extensions,
+    gnutls_init,
+    gnutls_kx_get,
+    gnutls_kx_get_name,
+    gnutls_mac_get,
+    gnutls_mac_get_name,
+    gnutls_priority_deinit,
+    gnutls_priority_init,
+    gnutls_priority_set_direct,
+    gnutls_protocol_get_name,
+    gnutls_protocol_get_version,
+    gnutls_record_get_direction,
+    gnutls_record_recv,
+    gnutls_record_send,
+    gnutls_server_name_get,
+    gnutls_server_name_set,
+    gnutls_session_get_ptr,
+    gnutls_session_set_ptr,
+    gnutls_set_default_priority,
+    gnutls_transport_set_ptr,
+)
 
 
 @gnutls_certificate_retrieve_function
@@ -204,7 +269,7 @@ class X509Credentials(object):
         if server_name is not None:
             return self.server_name_identities.get(server_name)
         elif self.cert and self.key:
-            return self  ## since we have the cert and key attributes we can behave like a X509Identity
+            return self  # since we have the cert and key attributes we can behave like a X509Identity
         else:
             return None
 
@@ -241,7 +306,7 @@ class Session(object):
        and a Credentials object."""
 
     session_type = (
-        None  ## placeholder for GNUTLS_SERVER or GNUTLS_CLIENT as defined by subclass
+        None  # placeholder for GNUTLS_SERVER or GNUTLS_CLIENT as defined by subclass
     )
 
     def __new__(cls, *args, **kwargs):
@@ -254,7 +319,7 @@ class Session(object):
 
     def __init__(self, socket, context):
         gnutls_init(byref(self._c_object), self.session_type)
-        ## Store a pointer to self on the C session
+        # Store a pointer to self on the C session
         gnutls_session_set_ptr(self._c_object, id(self))
         gnutls_set_default_priority(self._c_object)
         gnutls_priority_set_direct(self._c_object, context.session_parameters, None)
@@ -267,7 +332,7 @@ class Session(object):
         self.__deinit(self._c_object)
 
     def __getattr__(self, name):
-        ## Generic wrapper for the underlying socket methods and attributes.
+        # Generic wrapper for the underlying socket methods and attributes.
         return getattr(self.socket, name)
 
     # Session properties
@@ -276,8 +341,8 @@ class Session(object):
         return self._credentials
 
     def _set_credentials(self, credentials):
-        ## Release all credentials, otherwise gnutls will only release an existing credential of
-        ## the same type as the one being set and we can end up with multiple credentials in C.
+        # Release all credentials, otherwise gnutls will only release an existing credential of
+        # the same type as the one being set and we can end up with multiple credentials in C.
         gnutls_credentials_clear(self._c_object)
         gnutls_credentials_set(
             self._c_object, credentials._type, cast(credentials._c_object, c_void_p)
@@ -438,7 +503,7 @@ class ServerSession(Session):
             except RequestedDataNotAvailable:
                 break
             except MemoryError:
-                data_length.value += 1  ## one extra byte for the terminating 0
+                data_length.value += 1  # one extra byte for the terminating 0
                 data = create_string_buffer(data_length.value)
                 gnutls_server_name_get(
                     self._c_object, data, byref(data_length), byref(hostname_type), i
@@ -458,7 +523,7 @@ class ServerSessionFactory(object):
         self.session_class = session_class
 
     def __getattr__(self, name):
-        ## Generic wrapper for the underlying socket methods and attributes
+        # Generic wrapper for the underlying socket methods and attributes
         return getattr(self.socket, name)
 
     def bind(self, address):

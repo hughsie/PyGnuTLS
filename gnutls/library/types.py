@@ -1,5 +1,20 @@
 import sys
-from ctypes import *
+from ctypes import (
+    addressof,
+    c_char_p,
+    CFUNCTYPE,
+    c_int,
+    c_long,
+    c_size_t,
+    c_ubyte,
+    c_uint,
+    c_ulong,
+    c_void_p,
+    POINTER,
+    string_at,
+    Structure,
+    Union,
+)
 
 # Type aliases
 #
