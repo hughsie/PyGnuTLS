@@ -17,6 +17,7 @@ from gnutls.library.constants import (
     GNUTLS_SIGN_DSA_SHA1,
     GNUTLS_SIGN_DSA_SHA256,
     GNUTLS_SIGN_DSA_SHA512,
+    GNUTLS_VERIFY_ALLOW_BROKEN,
 )
 
 
@@ -68,13 +69,19 @@ class TestSigning(unittest.TestCase):
                 (GNUTLS_DIG_SHA512, GNUTLS_SIGN_DSA_SHA512, hashlib.sha512),
             ]:
                 signature = privkey.sign_data(hash_algo, 0, teststring)
-                pubkey.verify_data2(sign_algo, 0, teststring, signature)
+                pubkey.verify_data2(
+                    sign_algo, GNUTLS_VERIFY_ALLOW_BROKEN, teststring, signature
+                )
 
                 myhash = hashfunc(teststring).digest()
-                pubkey.verify_hash2(sign_algo, 0, myhash, signature)
+                pubkey.verify_hash2(
+                    sign_algo, GNUTLS_VERIFY_ALLOW_BROKEN, myhash, signature
+                )
 
                 signature2 = privkey.sign_hash(hash_algo, 0, myhash)
-                pubkey.verify_hash2(sign_algo, 0, myhash, signature2)
+                pubkey.verify_hash2(
+                    sign_algo, GNUTLS_VERIFY_ALLOW_BROKEN, myhash, signature2
+                )
 
     def test_tpmkey_sign(self):
         teststring = b"foobar"
