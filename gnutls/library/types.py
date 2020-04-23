@@ -121,7 +121,7 @@ class gnutls_datum_t(Structure):
 
     def get_string_and_free(self):
         res = string_at(self.data, self.size)
-        gnutls_free(self.data)
+        gnutls_free_function(addressof(self.data))
         self.data = None
         return res
 

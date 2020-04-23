@@ -18,7 +18,6 @@ __all__ = [
 import re
 from ctypes import *
 
-from gnutls.validators import method_args, one_of
 from gnutls.constants import X509_FMT_DER, X509_FMT_PEM
 from gnutls.errors import *
 
@@ -66,12 +65,11 @@ class X509NameMeta(type):
         setattr(instance, name, property(lambda self: getattr(self, short_name, None)))
 
 
-class X509Name(str):
-    __metaclass__ = X509NameMeta
+class X509Name(str, metaclass=X509NameMeta):
 
     def __init__(self, dname):
         str.__init__(self)
-        pairs = [x.replace("\,", ",") for x in re.split(r"(?<!\\),\s*", dname)]
+        pairs = [x.replace("\,", ",") for x in re.split(r"(?<!\\\\),", dname.decode())]
         for pair in pairs:
             try:
                 name, value = pair.split("=", 1)
@@ -100,7 +98,7 @@ class AlternativeNames(object):
 
     def __init__(self, names):
         object.__init__(self)
-        for name, key in self.__slots__.iteritems():
+        for name, key in self.__slots__.items():
             setattr(self, name, tuple(names.get(key, ())))
 
 
@@ -181,7 +179,7 @@ class Pkcs7(object):
 
         # by default, check all signatures in context
         if idx == -1:
-            idxs = range(self.get_signature_count())
+            idxs = list(range(self.get_signature_count()))
         else:
             idxs = [idx]
         for idx in idxs:
@@ -193,7 +191,7 @@ class Pkcs7(object):
 
         # by default, check all signatures in context
         if idx == -1:
-            idxs = range(self.get_signature_count())
+            idxs = list(range(self.get_signature_count()))
         else:
             idxs = [idx]
         for idx in idxs:
@@ -299,21 +297,20 @@ class PrivateKey(object):
     @staticmethod
     def import_uri(uri, flags=0, srk_password=None, key_password=None):
         pk = PrivateKey()
-        pk.uri = uri
+        pk.uri = uri.encode()
         pk.srk_password = srk_password
         pk.key_password = key_password
 
         if not srk_password and not key_password:
-            gnutls_privkey_import_url(pk._c_object, uri, flags)
+            gnutls_privkey_import_url(pk._c_object, uri.encode(), flags)
         else:
             gnutls_privkey_import_tpm_url(
-                pk._c_object, uri, srk_password, key_password, flags
+                pk._c_object, uri.encode(), srk_password.encode(), key_password.encode(), flags
             )
 
         algo = gnutls_privkey_get_pk_algorithm(pk._c_object, None)
         return pk.upcast(algo, pk)
 
-    @method_args(int, int, bytes)
     def sign_data(self, hash_algo, flags, buf):
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
         _signature = gnutls_datum_t()
@@ -322,7 +319,6 @@ class PrivateKey(object):
         )
         return _signature.get_string_and_free()
 
-    @method_args(int, int, bytes)
     def sign_hash(self, hash_algo, flags, buf):
         hash_data = gnutls_datum_t(
             cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf))
@@ -333,7 +329,6 @@ class PrivateKey(object):
         )
         return _signature.get_string_and_free()
 
-    @method_args(int, bytes)
     def decrypt_data(self, flags, ciphertext):
         _ciphertext = gnutls_datum_t(
             cast(c_char_p(ciphertext), POINTER(c_ubyte)), c_uint(len(ciphertext))
@@ -442,7 +437,6 @@ class PublicKey(object):
         algo = gnutls_pubkey_get_pk_algorithm(pubkey._c_object, None)
         return pubkey.upcast(algo, pubkey)
 
-    @method_args(int, int, bytes, bytes)
     def verify_data2(self, sign_algo, flags, buf, signature):
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
         _signature = gnutls_datum_t(
@@ -450,7 +444,6 @@ class PublicKey(object):
         )
         gnutls_pubkey_verify_data2(self._c_object, sign_algo, flags, data, _signature)
 
-    @method_args(int, int, bytes, bytes)
     def verify_hash2(self, sign_algo, flags, hashbuf, signature):
         hash_data = gnutls_datum_t(
             cast(c_char_p(hashbuf), POINTER(c_ubyte)), c_uint(len(hashbuf))
@@ -462,7 +455,6 @@ class PublicKey(object):
             self._c_object, sign_algo, flags, hash_data, _signature
         )
 
-    @method_args(int, bytes)
     def encrypt_data(self, flags, plaintext):
         _plaintext = gnutls_datum_t(
             cast(c_char_p(plaintext), POINTER(c_ubyte)), c_uint(len(plaintext))
@@ -527,7 +519,6 @@ class X509Certificate(object):
         instance._alternative_names = None
         return instance
 
-    @method_args(str, one_of(X509_FMT_PEM, X509_FMT_DER))
     def __init__(self, buf, format=X509_FMT_PEM):
         gnutls_x509_crt_init(byref(self._c_object))
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
@@ -565,7 +556,7 @@ class X509Certificate(object):
         names = {}
         size = c_size_t(256)
         alt_name = create_string_buffer(size.value)
-        for i in xrange(65536):
+        for i in range(65536):
             try:
                 name_type = gnutls_x509_crt_get_subject_alt_name(
                     self._c_object, i, alt_name, byref(size), None
@@ -621,14 +612,12 @@ class X509Certificate(object):
     def version(self):
         return gnutls_x509_crt_get_version(self._c_object)
 
-    # @method_args(X509Certificate)
     def has_issuer(self, issuer):
         """Return True if the certificate was issued by the given issuer, False otherwise."""
         if not isinstance(issuer, X509Certificate):
             raise TypeError("issuer must be an X509Certificate object")
         return bool(gnutls_x509_crt_check_issuer(self._c_object, issuer._c_object))
 
-    @method_args(str)
     def has_hostname(self, hostname):
         """Return True if the hostname matches the DNSName/IPAddress subject alternative name extension
            of this certificate, False otherwise."""
@@ -646,7 +635,6 @@ class X509Certificate(object):
         if not self.has_hostname(hostname):
             raise CertificateError("certificate doesn't match hostname")
 
-    @method_args(one_of(X509_FMT_PEM, X509_FMT_DER))
     def export(self, format=X509_FMT_PEM):
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
@@ -669,7 +657,6 @@ class X509PrivateKey(object):
         instance._c_object = gnutls_x509_privkey_t()
         return instance
 
-    @method_args(str, one_of(X509_FMT_PEM, X509_FMT_DER))
     def __init__(self, buf, format=X509_FMT_PEM):
         gnutls_x509_privkey_init(byref(self._c_object))
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
@@ -678,7 +665,6 @@ class X509PrivateKey(object):
     def __del__(self):
         self.__deinit(self._c_object)
 
-    @method_args(one_of(X509_FMT_PEM, X509_FMT_DER))
     def export(self, format=X509_FMT_PEM):
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
@@ -699,7 +685,6 @@ class X509Identity(object):
 
     __slots__ = ("cert", "key")
 
-    @method_args(X509Certificate, X509PrivateKey)
     def __init__(self, cert, key):
         self.cert = cert
         self.key = key
@@ -722,7 +707,6 @@ class X509CRL(object):
         instance._c_object = gnutls_x509_crl_t()
         return instance
 
-    @method_args(str, one_of(X509_FMT_PEM, X509_FMT_DER))
     def __init__(self, buf, format=X509_FMT_PEM):
         gnutls_x509_crl_init(byref(self._c_object))
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
@@ -750,7 +734,6 @@ class X509CRL(object):
             gnutls_x509_crl_get_issuer_dn(self._c_object, dname, byref(size))
         return X509Name(dname.value)
 
-    @method_args(X509Certificate)
     def is_revoked(self, cert):
         """Return True if certificate is revoked, False otherwise"""
         return bool(
@@ -762,7 +745,6 @@ class X509CRL(object):
         if self.is_revoked(cert):
             raise CertificateRevokedError("%s was revoked" % cert_name)
 
-    @method_args(one_of(X509_FMT_PEM, X509_FMT_DER))
     def export(self, format=X509_FMT_PEM):
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
@@ -785,7 +767,6 @@ class DHParams(object):
         instance._c_object = gnutls_dh_params_t()
         return instance
 
-    @method_args(int)
     def __init__(self, bits=1024):
         gnutls_dh_params_init(byref(self._c_object))
         gnutls_dh_params_generate2(self._c_object, bits)
@@ -816,7 +797,6 @@ class CWrapper(object):
 class Cipher(CWrapper):
     ctype = gnutls_cipher_hd_t
 
-    @method_args(int, str, str)
     def __init__(self, algo, key, iv):
         super(Cipher, self).__init__()
         dkey = gnutls_datum_t(cast(c_char_p(key), POINTER(c_ubyte)), c_uint(len(key)))
@@ -825,14 +805,12 @@ class Cipher(CWrapper):
         self.algorithm = algo
         self.deinit = gnutls_cipher_deinit
 
-    @method_args(str)
     def set_iv(self, iv):
         gnutls_cipher_set_iv(self._c_object, c_char_p(iv), c_size_t(len(iv)))
 
     def add_auth(self, auth):
         gnutls_cipher_add_auth(self._c_object, c_char_p(auth), c_size_t(len(auth)))
 
-    @method_args(str)
     def decrypt(self, cipher_text):
         pt = create_string_buffer(len(cipher_text))
         gnutls_cipher_decrypt2(
@@ -844,7 +822,6 @@ class Cipher(CWrapper):
         )
         return pt.value
 
-    @method_args(str)
     def encrypt(self, plain_text):
         bs = gnutls_cipher_get_block_size(self.algorithm)
         ct = create_string_buffer(int(math.ceil(len(plain_text) / float(bs)) * bs))
@@ -857,7 +834,6 @@ class Cipher(CWrapper):
         )
         return ct.value
 
-    @method_args(int)
     def cipher_tag(self, tag_size):
         assert tag_size > 0
         tag = create_string_buffer(tag_size)
@@ -868,14 +844,12 @@ class Cipher(CWrapper):
 class AEADCipher(CWrapper):
     ctype = gnutls_aead_cipher_hd_t
 
-    @method_args(int, str)
     def __init__(self, algo, key):
         super(AEADCipher, self).__init__()
         data = gnutls_datum_t(cast(c_char_p(key), POINTER(c_ubyte)), c_uint(len(key)))
         gnutls_aead_cipher_init(byref(self._c_object), algo, byref(data))
         self.deinit = gnutls_aead_cipher_deinit
 
-    @method_args(str, str, int, str)
     def encrypt(self, nonce, auth, tag_size, plain_text):
         csize = c_size_t(tag_size + len(plain_text) + 16)
         ct = create_string_buffer(csize.value)
@@ -910,7 +884,6 @@ class AEADCipher(CWrapper):
 
         return ct.value
 
-    @method_args(str, str, int, str)
     def decrypt(self, nonce, auth, tag_size, cipher_text):
         psize = c_size_t(tag_size + len(cipher_text) + 16)
         pt = create_string_buffer(psize.value)

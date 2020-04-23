@@ -3094,6 +3094,6 @@ else:
 
 __all__ = sorted(
     name
-    for name, obj in sys.modules[__name__].__dict__.iteritems()
+    for name, obj in sys.modules[__name__].__dict__.items()
     if name.startswith("gnutls_") and hasattr(obj, "restype")
 )
