@@ -13,6 +13,10 @@ from gnutls.library.constants import (
     GNUTLS_SIGN_RSA_SHA1,
     GNUTLS_SIGN_RSA_SHA256,
     GNUTLS_SIGN_RSA_SHA512,
+    GNUTLS_PK_DSA,
+    GNUTLS_SIGN_DSA_SHA1,
+    GNUTLS_SIGN_DSA_SHA256,
+    GNUTLS_SIGN_DSA_SHA512,
 )
 
 
@@ -50,6 +54,26 @@ class TestSigning(unittest.TestCase):
 
                 signature2 = privkey.sign_hash(hash_algo, 0, myhash)
                 self.assertEqual(len(signature2), bits / 8)
+                pubkey.verify_hash2(sign_algo, 0, myhash, signature2)
+
+    def test_generate_dsa_and_sign(self):
+        teststring = b"foobar"
+
+        for bits in [2048]:
+            privkey = PrivateKey.generate(GNUTLS_PK_DSA, bits)
+            pubkey = privkey.get_public_key()
+            for hash_algo, sign_algo, hashfunc in [
+                (GNUTLS_DIG_SHA256, GNUTLS_SIGN_DSA_SHA256, hashlib.sha256),
+                (GNUTLS_DIG_SHA1, GNUTLS_SIGN_DSA_SHA1, hashlib.sha1),
+                (GNUTLS_DIG_SHA512, GNUTLS_SIGN_DSA_SHA512, hashlib.sha512),
+            ]:
+                signature = privkey.sign_data(hash_algo, 0, teststring)
+                pubkey.verify_data2(sign_algo, 0, teststring, signature)
+
+                myhash = hashfunc(teststring).digest()
+                pubkey.verify_hash2(sign_algo, 0, myhash, signature)
+
+                signature2 = privkey.sign_hash(hash_algo, 0, myhash)
                 pubkey.verify_hash2(sign_algo, 0, myhash, signature2)
 
     def test_tpmkey_sign(self):
