@@ -181,7 +181,7 @@ class X509NameMeta(type):
 class X509Name(str, metaclass=X509NameMeta):
     def __init__(self, dname):
         str.__init__(self)
-        pairs = [x.replace("\\,", ",") for x in re.split(r"(?<!\\\\),", dname.decode())]
+        pairs = [x.replace("\\,", ",") for x in re.split(r"(?<!\\\\),", dname)]
         for pair in pairs:
             try:
                 name, value = pair.split("=", 1)
@@ -652,7 +652,7 @@ class X509Certificate(object):
         except MemoryError:
             dname = create_string_buffer(size.value)
             gnutls_x509_crt_get_dn(self._c_object, dname, byref(size))
-        return X509Name(dname.value)
+        return X509Name(dname.value.decode())
 
     @property
     def issuer(self):
@@ -663,7 +663,7 @@ class X509Certificate(object):
         except MemoryError:
             dname = create_string_buffer(size.value)
             gnutls_x509_crt_get_issuer_dn(self._c_object, dname, byref(size))
-        return X509Name(dname.value)
+        return X509Name(dname.value.decode())
 
     @property
     def alternative_names(self):
@@ -849,7 +849,7 @@ class X509CRL(object):
         except MemoryError:
             dname = create_string_buffer(size.value)
             gnutls_x509_crl_get_issuer_dn(self._c_object, dname, byref(size))
-        return X509Name(dname.value)
+        return X509Name(dname.value.decode())
 
     def is_revoked(self, cert):
         """Return True if certificate is revoked, False otherwise"""
