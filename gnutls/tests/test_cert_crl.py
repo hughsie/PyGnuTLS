@@ -75,3 +75,7 @@ class TestCertificates(unittest.TestCase):
         print("Cert activation:", time.ctime(cert.activation_time))
         print("Cert expiration:", time.ctime(cert.expiration_time))
         self.assertTrue(crl.is_revoked(cert))
+
+
+if __name__ == "__main__":
+    unittest.main()

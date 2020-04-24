@@ -92,3 +92,7 @@ class TestPkcs7(unittest.TestCase):
         self.assertEqual(
             info.signer_serial, "599d8e581c817895df746555",
         )
+
+
+if __name__ == "__main__":
+    unittest.main()

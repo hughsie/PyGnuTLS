@@ -112,3 +112,7 @@ class TestEncryption(unittest.TestCase):
             self.assertEqual(len(enc_data), bits / 8)
             plaintext = privkey.decrypt_data(0, enc_data)
             self.assertEqual(plaintext, teststring)
+
+
+if __name__ == "__main__":
+    unittest.main()
