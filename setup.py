@@ -1,36 +1,24 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
-import os
+import setuptools
 
-from setuptools import setup
-from gnutls import __info__ as package_info
-
-
-def find_packages(toplevel):
-    return [
-        directory.replace(os.path.sep, ".")
-        for directory, subdirs, files in os.walk(toplevel)
-        if "__init__.py" in files
-    ]
-
-
-setup(
-    name=package_info.__project__,
-    version=package_info.__version__,
-    description=package_info.__summary__,
-    long_description=open("README").read(),
-    license=package_info.__license__,
-    url=package_info.__webpage__,
-    author=package_info.__author__,
-    author_email=package_info.__email__,
+setuptools.setup(
+    name="PyGnuTLS",
+    version="0.0.1",
+    description="Python wrapper for the GnuTLS library",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    license="LGPL",
+    url="https://github.com/hughsie/PyGnuTLS",
+    packages=setuptools.find_packages(),
+    author="Richard Hughes",
+    author_email="richard@hughsie.com",
     platforms=["Platform Independent"],
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
         "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Intended Audience :: Developers",
     ],
-    packages=find_packages("gnutls"),
+    python_requires='>=3.5',
 )

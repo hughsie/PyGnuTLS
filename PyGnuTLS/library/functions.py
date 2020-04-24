@@ -1,9 +1,9 @@
 import sys
 from ctypes import c_int, c_char_p, POINTER, c_uint, c_void_p, c_ubyte
 
-from gnutls.library import libgnutls
+from PyGnuTLS.library import libgnutls
 
-from gnutls.library.types import (
+from PyGnuTLS.library.types import (
     gnutls_aead_cipher_hd_t,
     gnutls_alert_description_t,
     gnutls_alert_level_t,

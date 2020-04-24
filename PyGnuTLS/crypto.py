@@ -30,35 +30,31 @@ from ctypes import (
     sizeof,
 )
 
-from gnutls.errors import (
+from PyGnuTLS.errors import (
     CertificateError,
     CertificateRevokedError,
     RequestedDataNotAvailable,
 )
 
-from gnutls.library.constants import (
+from PyGnuTLS.library.constants import (
+    GNUTLS_PK_DSA,
+    GNUTLS_PK_ECDH_X25519,
+    GNUTLS_PK_ECDSA,
+    GNUTLS_PK_EDDSA_ED25519,
+    GNUTLS_PK_RSA,
+    GNUTLS_PK_RSA_PSS,
+    GNUTLS_SAN_DN,
     GNUTLS_SAN_DNSNAME,
+    GNUTLS_SAN_IPADDRESS,
+    GNUTLS_SAN_OTHERNAME,
     GNUTLS_SAN_RFC822NAME,
     GNUTLS_SAN_URI,
     GNUTLS_X509_FMT_PEM,
 )
-from gnutls.library.constants import (
-    GNUTLS_SAN_IPADDRESS,
-    GNUTLS_SAN_OTHERNAME,
-    GNUTLS_SAN_DN,
-)
-from gnutls.library.constants import (
-    GNUTLS_PK_ECDSA,
-    GNUTLS_PK_ECDH_X25519,
-    GNUTLS_PK_EDDSA_ED25519,
-    GNUTLS_PK_RSA,
-    GNUTLS_PK_RSA_PSS,
-    GNUTLS_PK_DSA,
-)
 
-from gnutls.library.types import gnutls_pkcs7_signature_info_st, gnutls_x509_dn_t
+from PyGnuTLS.library.types import gnutls_pkcs7_signature_info_st, gnutls_x509_dn_t
 
-from gnutls.library.functions import (
+from PyGnuTLS.library.functions import (
     gnutls_aead_cipher_decrypt,
     gnutls_aead_cipher_deinit,
     gnutls_aead_cipher_encrypt,

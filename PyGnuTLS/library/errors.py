@@ -1,6 +1,6 @@
 """GNUTLS library errors"""
 
-from gnutls.errors import (
+from PyGnuTLS.errors import (
     CertificateError,
     CertificateAuthorityError,
     CertificateSecurityError,
@@ -12,7 +12,7 @@ from gnutls.errors import (
     RequestedDataNotAvailable,
 )
 
-from gnutls.library.constants import (
+from PyGnuTLS.library.constants import (
     GNUTLS_A_BAD_CERTIFICATE,
     GNUTLS_A_CERTIFICATE_EXPIRED,
     GNUTLS_A_CERTIFICATE_REVOKED,
@@ -26,7 +26,7 @@ from gnutls.library.constants import (
     GNUTLS_E_NO_CERTIFICATE_FOUND,
     GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE,
 )
-from gnutls.library.functions import gnutls_strerror, gnutls_alert_get
+from PyGnuTLS.library.functions import gnutls_strerror, gnutls_alert_get
 
 
 class ErrorMessage(str):
@@ -85,7 +85,7 @@ class ErrorHandler(object):
 
 
 # Attach the error checking function to all functions returning integers
-from gnutls.library import functions
+from PyGnuTLS.library import functions
 from ctypes import c_int, c_long
 
 for func in (

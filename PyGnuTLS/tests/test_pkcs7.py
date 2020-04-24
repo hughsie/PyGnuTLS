@@ -4,17 +4,17 @@ import unittest
 import os
 import pytest
 
-from gnutls.crypto import X509Certificate, X509PrivateKey, Pkcs7, X509TrustList
-from gnutls.library.constants import (
+from PyGnuTLS.crypto import X509Certificate, X509PrivateKey, Pkcs7, X509TrustList
+from PyGnuTLS.library.constants import (
     GNUTLS_PKCS7_INCLUDE_CERT,
     GNUTLS_PKCS7_INCLUDE_TIME,
     GNUTLS_SIGN_RSA_SHA256,
     GNUTLS_VERIFY_DISABLE_TIME_CHECKS,
     GNUTLS_VERIFY_DISABLE_TRUSTED_TIME_CHECKS,
 )
-from gnutls.library.errors import GNUTLSError
+from PyGnuTLS.library.errors import GNUTLSError
 
-certs_path = os.path.join("gnutls", "tests", "pkcs7")
+certs_path = os.path.join("PyGnuTLS", "tests", "pkcs7")
 
 
 class TestPkcs7(unittest.TestCase):

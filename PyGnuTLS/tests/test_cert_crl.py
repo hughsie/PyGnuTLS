@@ -4,9 +4,9 @@ import unittest
 import os
 import time
 
-from gnutls.crypto import X509Certificate, X509CRL
+from PyGnuTLS.crypto import X509Certificate, X509CRL
 
-certs_path = os.path.join("gnutls", "tests", "certs")
+certs_path = os.path.join("PyGnuTLS", "tests", "certs")
 
 
 class TestCertificates(unittest.TestCase):

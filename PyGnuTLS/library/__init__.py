@@ -73,10 +73,10 @@ libgnutls = _load_library(
 )  # will use the highest of the available ABI versions
 
 
-from gnutls.library import constants
-from gnutls.library import errors
-from gnutls.library import functions
-from gnutls.library import types
+from PyGnuTLS.library import constants
+from PyGnuTLS.library import errors
+from PyGnuTLS.library import functions
+from PyGnuTLS.library import types
 
 
 __need_version__ = "3.2.0"
