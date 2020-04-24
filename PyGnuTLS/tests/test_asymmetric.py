@@ -3,9 +3,9 @@
 import hashlib
 import unittest
 
-from gnutls.crypto import PrivateKey, RSAPrivateKey
-from gnutls.errors import GNUTLSError
-from gnutls.library.constants import (
+from PyGnuTLS.crypto import PrivateKey, RSAPrivateKey
+from PyGnuTLS.errors import GNUTLSError
+from PyGnuTLS.library.constants import (
     GNUTLS_PK_RSA,
     GNUTLS_DIG_SHA1,
     GNUTLS_DIG_SHA256,

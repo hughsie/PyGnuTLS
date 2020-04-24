@@ -4,17 +4,17 @@ import unittest
 import os
 import pytest
 
-from gnutls.crypto import X509Certificate, X509PrivateKey, Pkcs7, X509TrustList
-from gnutls.library.constants import (
+from PyGnuTLS.crypto import X509Certificate, X509PrivateKey, Pkcs7, X509TrustList
+from PyGnuTLS.library.constants import (
     GNUTLS_PKCS7_INCLUDE_CERT,
     GNUTLS_PKCS7_INCLUDE_TIME,
     GNUTLS_SIGN_RSA_SHA256,
     GNUTLS_VERIFY_DISABLE_TIME_CHECKS,
     GNUTLS_VERIFY_DISABLE_TRUSTED_TIME_CHECKS,
 )
-from gnutls.library.errors import GNUTLSError
+from PyGnuTLS.library.errors import GNUTLSError
 
-certs_path = os.path.join("gnutls", "tests", "pkcs7")
+certs_path = os.path.join("PyGnuTLS", "tests", "pkcs7")
 
 
 class TestPkcs7(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestPkcs7(unittest.TestCase):
         with open(os.path.join(certs_path, "LVFS-CA.pem"), "rb") as f:
             cert = X509Certificate(f.read())
             self.assertEqual(cert.issuer, "CN=LVFS CA,O=Linux Vendor Firmware Project")
-            self.assertEqual(cert.serial_number, 1)
+            self.assertEqual(cert.serial_number, "1")
             self.assertEqual(cert.activation_time, 1501545600)
             self.assertEqual(cert.expiration_time, 2448230400)
             self.assertEqual(cert.version, 3)

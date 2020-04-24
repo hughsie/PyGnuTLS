@@ -25,9 +25,9 @@ from ctypes import (
     create_string_buffer,
 )
 
-from gnutls.crypto import X509Identity, X509Certificate
+from PyGnuTLS.crypto import X509Identity, X509Certificate
 
-from gnutls.errors import (
+from PyGnuTLS.errors import (
     CertificateAuthorityError,
     CertificateError,
     CertificateExpiredError,
@@ -37,38 +37,35 @@ from gnutls.errors import (
     GNUTLSError,
 )
 
-from gnutls.library.constants import GNUTLS_SERVER, GNUTLS_CLIENT, GNUTLS_CRT_X509
-from gnutls.library.constants import (
+from PyGnuTLS.library.constants import (
+    GNUTLS_A_BAD_CERTIFICATE,
+    GNUTLS_A_CERTIFICATE_EXPIRED,
+    GNUTLS_A_CERTIFICATE_REVOKED,
+    GNUTLS_A_INSUFFICIENT_SECURITY,
+    GNUTLS_AL_FATAL,
+    GNUTLS_A_UNKNOWN_CA,
+    GNUTLS_CERT_INSECURE_ALGORITHM,
     GNUTLS_CERT_INVALID,
     GNUTLS_CERT_REQUEST,
     GNUTLS_CERT_REVOKED,
-    GNUTLS_CERT_INSECURE_ALGORITHM,
-    GNUTLS_X509_FMT_DER,
-    GNUTLS_SHUT_RDWR,
-)
-from gnutls.library.constants import (
-    GNUTLS_CERT_SIGNER_NOT_FOUND,
     GNUTLS_CERT_SIGNER_NOT_CA,
-)
-from gnutls.library.constants import (
-    GNUTLS_A_CERTIFICATE_EXPIRED,
-    GNUTLS_A_CERTIFICATE_REVOKED,
+    GNUTLS_CERT_SIGNER_NOT_FOUND,
+    GNUTLS_CLIENT,
     GNUTLS_CRD_CERTIFICATE,
-    GNUTLS_AL_FATAL,
-    GNUTLS_A_BAD_CERTIFICATE,
-    GNUTLS_A_UNKNOWN_CA,
-    GNUTLS_A_INSUFFICIENT_SECURITY,
+    GNUTLS_CRT_X509,
+    GNUTLS_NAME_DNS,
+    GNUTLS_SERVER,
+    GNUTLS_SHUT_RDWR,
+    GNUTLS_X509_FMT_DER,
 )
-from gnutls.library.constants import GNUTLS_NAME_DNS
-from gnutls.library.types import (
+from PyGnuTLS.library.types import (
     gnutls_certificate_credentials_t,
     gnutls_session_t,
+    gnutls_certificate_retrieve_function,
+    gnutls_priority_t,
     gnutls_x509_crt_t,
 )
-from gnutls.library.types import gnutls_certificate_retrieve_function
-from gnutls.library.types import gnutls_priority_t
-
-from gnutls.library.functions import (
+from PyGnuTLS.library.functions import (
     gnutls_alert_send,
     gnutls_bye,
     gnutls_certificate_allocate_credentials,
