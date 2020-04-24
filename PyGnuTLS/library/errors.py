@@ -31,7 +31,7 @@ from PyGnuTLS.library.functions import gnutls_strerror, gnutls_alert_get
 
 class ErrorMessage(str):
     def __new__(cls, code):
-        obj = str.__new__(cls, gnutls_strerror(code))
+        obj = str.__new__(cls, gnutls_strerror(code).decode())
         obj.code = code
         return obj
 
