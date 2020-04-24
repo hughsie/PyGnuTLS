@@ -23,7 +23,7 @@ class TestPkcs7(unittest.TestCase):
         with open(os.path.join(certs_path, "LVFS-CA.pem"), "rb") as f:
             cert = X509Certificate(f.read())
             self.assertEqual(cert.issuer, "CN=LVFS CA,O=Linux Vendor Firmware Project")
-            self.assertEqual(cert.serial_number, 1)
+            self.assertEqual(cert.serial_number, "1")
             self.assertEqual(cert.activation_time, 1501545600)
             self.assertEqual(cert.expiration_time, 2448230400)
             self.assertEqual(cert.version, 3)
