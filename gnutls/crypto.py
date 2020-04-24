@@ -19,17 +19,15 @@ import math
 
 import re
 from ctypes import (
-    c_char_p,
-    POINTER,
-    c_uint,
-    c_void_p,
-    c_ubyte,
-    c_ulong,
-    c_size_t,
-    cast,
     byref,
-    sizeof,
+    cast,
+    c_char_p,
     create_string_buffer,
+    c_size_t,
+    c_uint,
+    c_ulong,
+    c_void_p,
+    sizeof,
 )
 
 from gnutls.errors import (
@@ -58,11 +56,9 @@ from gnutls.library.constants import (
     GNUTLS_PK_DSA,
 )
 
-# from gnutls.library.types import *
+from gnutls.library.types import gnutls_pkcs7_signature_info_st, gnutls_x509_dn_t
 
 from gnutls.library.functions import (
-    gnutls_x509_trust_list_deinit,
-    gnutls_x509_trust_list_t,
     gnutls_aead_cipher_decrypt,
     gnutls_aead_cipher_deinit,
     gnutls_aead_cipher_encrypt,
@@ -83,12 +79,15 @@ from gnutls.library.functions import (
     gnutls_dh_params_init,
     gnutls_dh_params_t,
     gnutls_digest_algorithm_t,
+    gnutls_hex_encode2,
     gnutls_pkcs7_deinit,
     gnutls_pkcs7_export,
     gnutls_pkcs7_get_signature_count,
+    gnutls_pkcs7_get_signature_info,
     gnutls_pkcs7_import,
     gnutls_pkcs7_init,
     gnutls_pkcs7_sign,
+    gnutls_pkcs7_signature_info_deinit,
     gnutls_pkcs7_t,
     gnutls_pkcs7_verify,
     gnutls_pkcs7_verify_direct,
@@ -144,6 +143,10 @@ from gnutls.library.functions import (
     gnutls_x509_crt_import,
     gnutls_x509_crt_init,
     gnutls_x509_crt_t,
+    gnutls_x509_dn_deinit,
+    gnutls_x509_dn_get_str2,
+    gnutls_x509_dn_import,
+    gnutls_x509_dn_init,
     gnutls_x509_privkey_deinit,
     gnutls_x509_privkey_export,
     gnutls_x509_privkey_import,
@@ -151,8 +154,23 @@ from gnutls.library.functions import (
     gnutls_x509_privkey_t,
     gnutls_x509_trust_list_add_cas,
     gnutls_x509_trust_list_add_trust_mem,
+    gnutls_x509_trust_list_deinit,
     gnutls_x509_trust_list_init,
+    gnutls_x509_trust_list_t,
 )
+
+
+class CWrapper(object):
+    ctype = None
+    deinit = None
+
+    def __init__(self, *args, **kwargs):
+        super(CWrapper, self).__init__(*args, **kwargs)
+        self._c_object = self.ctype()
+
+    def __del__(self):
+        if self.deinit:
+            self.deinit(self._c_object)
 
 
 class X509NameMeta(type):
@@ -239,6 +257,60 @@ class X509TrustList(object):
         gnutls_x509_trust_list_add_trust_mem(self._c_object, byref(data))
 
 
+class X509Dn(CWrapper):
+    ctype = gnutls_x509_dn_t
+
+    def __init__(self, data=None):
+        super(X509Dn, self).__init__()
+        gnutls_x509_dn_init(byref(self._c_object))
+        if data:
+            gnutls_x509_dn_import(self._c_object, data)
+        self.deinit = gnutls_x509_dn_deinit
+
+    def __str__(self):
+        tmp = gnutls_datum_t()
+        gnutls_x509_dn_get_str2(self._c_object, byref(tmp), 0)
+        return tmp.get_string_and_free().decode()
+
+
+def _gnutls_datum_t_hex_encode(self):
+    if not self.data:
+        None
+    if not self.size:
+        None
+    tmp = gnutls_datum_t()
+    gnutls_hex_encode2(self, byref(tmp))
+    return tmp.get_string_and_free().decode()
+
+
+class Pkcs7SignatureInfo(CWrapper):
+    ctype = gnutls_pkcs7_signature_info_st
+
+    def __init__(self):
+        super(Pkcs7SignatureInfo, self).__init__()
+        self.deinit = gnutls_pkcs7_signature_info_deinit
+
+    @property
+    def issuer_dn(self):
+        return X509Dn(self._c_object.issuer_dn)
+
+    @property
+    def signing_time(self):
+        return self._c_object.signing_time
+
+    @property
+    def algo(self):
+        return self._c_object.algo
+
+    @property
+    def signer_serial(self):
+        return _gnutls_datum_t_hex_encode(self._c_object.signer_serial)
+
+    @property
+    def issuer_keyid(self):
+        return _gnutls_datum_t_hex_encode(self._c_object.issuer_keyid)
+
+
 class Pkcs7(object):
     def __new__(cls, *args, **kwargs):
         instance = object.__new__(cls)
@@ -285,6 +357,14 @@ class Pkcs7(object):
 
     def get_signature_count(self):
         return gnutls_pkcs7_get_signature_count(self._c_object)
+
+    def get_signature_info(self):
+        infos = []
+        for idx in range(0, self.get_signature_count()):
+            st = Pkcs7SignatureInfo()
+            gnutls_pkcs7_get_signature_info(self._c_object, idx, byref(st._c_object))
+            infos.append(st)
+        return infos
 
     def verify_direct(self, cert, buf, idx=-1, flags=0):
         data = gnutls_datum_t(cast(c_char_p(buf), POINTER(c_ubyte)), c_uint(len(buf)))
@@ -896,19 +976,6 @@ class DHParams(object):
 
     def __del__(self):
         self.__deinit(self._c_object)
-
-
-class CWrapper(object):
-    ctype = None
-    deinit = None
-
-    def __init__(self, *args, **kwargs):
-        super(CWrapper, self).__init__(*args, **kwargs)
-        self._c_object = self.ctype()
-
-    def __del__(self):
-        if self.deinit:
-            self.deinit(self._c_object)
 
 
 class Cipher(CWrapper):

@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-import hashlib
 import unittest
 import os
 import time
 
 from gnutls.crypto import X509Certificate, X509CRL
-from gnutls.errors import GNUTLSError
 
 certs_path = os.path.join("gnutls", "tests", "certs")
+
 
 class TestCertificates(unittest.TestCase):
     def test_crl_is_revoked(self):
@@ -51,7 +50,9 @@ class TestCertificates(unittest.TestCase):
         print("Cert expiration:", time.ctime(cert.expiration_time))
         self.assertFalse(crl.is_revoked(cert))
 
-        cert = X509Certificate(open(os.path.join(certs_path, "revoked.crt"), "rb").read())
+        cert = X509Certificate(
+            open(os.path.join(certs_path, "revoked.crt"), "rb").read()
+        )
         print("Certificate certs/revoked.crt:")
         print("Cert subject:")
         print("  CN = %s" % cert.subject.common_name)  # here we use long names

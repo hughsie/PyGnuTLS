@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 import unittest
-import sys
 import os
 import pytest
 
 from gnutls.crypto import X509Certificate, X509PrivateKey, Pkcs7, X509TrustList
 from gnutls.library.constants import (
-    GNUTLS_PKCS7_INCLUDE_TIME,
     GNUTLS_PKCS7_INCLUDE_CERT,
+    GNUTLS_PKCS7_INCLUDE_TIME,
+    GNUTLS_SIGN_RSA_SHA256,
     GNUTLS_VERIFY_DISABLE_TIME_CHECKS,
     GNUTLS_VERIFY_DISABLE_TRUSTED_TIME_CHECKS,
 )
@@ -74,3 +74,21 @@ class TestPkcs7(unittest.TestCase):
         pkcs7 = Pkcs7()
         pkcs7.import_signature(data_sig)
         pkcs7.verify_direct(cert, data)
+
+    def test_pkcs7_signature(self):
+
+        with open(os.path.join(certs_path, "firmware.bin.p7b"), "rb") as f:
+            data_sig = f.read()
+        pkcs7 = Pkcs7()
+        pkcs7.import_signature(data_sig)
+        infos = pkcs7.get_signature_info()
+        self.assertEqual(len(infos), 1)
+        info = infos[0]
+        self.assertEqual(info.algo, GNUTLS_SIGN_RSA_SHA256)
+        self.assertEqual(info.signing_time, 1503498945)
+        self.assertEqual(
+            str(info.issuer_dn), "O=Linux Vendor Firmware Project,CN=LVFS CA"
+        )
+        self.assertEqual(
+            info.signer_serial, "599d8e581c817895df746555",
+        )

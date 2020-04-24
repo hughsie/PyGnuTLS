@@ -43,6 +43,7 @@ from gnutls.library.types import (
     gnutls_params_function,
     gnutls_pk_algorithm_t,
     gnutls_pkcs7_attrs_t,
+    gnutls_pkcs7_signature_info_st,
     gnutls_pkcs7_t,
     gnutls_priority_t,
     gnutls_privkey_t,
@@ -669,6 +670,10 @@ gnutls_hex_encode = libgnutls.gnutls_hex_encode
 gnutls_hex_encode.argtypes = [POINTER(gnutls_datum_t), c_char_p, POINTER(size_t)]
 gnutls_hex_encode.restype = c_int
 
+gnutls_hex_encode2 = libgnutls.gnutls_hex_encode2
+gnutls_hex_encode2.argtypes = [POINTER(gnutls_datum_t), POINTER(gnutls_datum_t)]
+gnutls_hex_encode2.restype = c_int
+
 gnutls_init = libgnutls.gnutls_init
 gnutls_init.argtypes = [POINTER(gnutls_session_t), gnutls_connection_end_t]
 gnutls_init.restype = c_int
@@ -838,6 +843,18 @@ gnutls_pkcs7_verify.argtypes = [
     c_uint,
 ]
 gnutls_pkcs7_verify.restype = c_int
+
+gnutls_pkcs7_get_signature_info = libgnutls.gnutls_pkcs7_get_signature_info
+gnutls_pkcs7_get_signature_info.argtypes = [
+    gnutls_pkcs7_t,
+    c_uint,
+    POINTER(gnutls_pkcs7_signature_info_st),
+]
+gnutls_pkcs7_get_signature_info.restype = c_int
+
+gnutls_pkcs7_signature_info_deinit = libgnutls.gnutls_pkcs7_signature_info_deinit
+gnutls_pkcs7_signature_info_deinit.argtypes = [POINTER(gnutls_pkcs7_signature_info_st)]
+gnutls_pkcs7_signature_info_deinit.restype = None
 
 gnutls_prf = libgnutls.gnutls_prf
 gnutls_prf.argtypes = [
@@ -2151,6 +2168,18 @@ gnutls_x509_dn_import.restype = c_int
 gnutls_x509_dn_init = libgnutls.gnutls_x509_dn_init
 gnutls_x509_dn_init.argtypes = [POINTER(gnutls_x509_dn_t)]
 gnutls_x509_dn_init.restype = c_int
+
+gnutls_x509_dn_deinit = libgnutls.gnutls_x509_dn_deinit
+gnutls_x509_dn_deinit.argtypes = [gnutls_x509_dn_t]
+gnutls_x509_dn_deinit.restype = c_int
+
+gnutls_x509_dn_get_str = libgnutls.gnutls_x509_dn_get_str
+gnutls_x509_dn_get_str.argtypes = [gnutls_x509_dn_t, POINTER(gnutls_datum_t)]
+gnutls_x509_dn_get_str.restype = c_int
+
+gnutls_x509_dn_get_str2 = libgnutls.gnutls_x509_dn_get_str2
+gnutls_x509_dn_get_str2.argtypes = [gnutls_x509_dn_t, POINTER(gnutls_datum_t), c_uint]
+gnutls_x509_dn_get_str2.restype = c_int
 
 gnutls_x509_dn_oid_known = libgnutls.gnutls_x509_dn_oid_known
 gnutls_x509_dn_oid_known.argtypes = [c_char_p]
