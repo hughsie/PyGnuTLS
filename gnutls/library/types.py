@@ -1,6 +1,7 @@
 import sys
 from ctypes import (
     addressof,
+    cast,
     c_char_p,
     CFUNCTYPE,
     c_int,
@@ -133,6 +134,11 @@ gnutls_priority_t = POINTER(gnutls_priority_st)
 
 class gnutls_datum_t(Structure):
     _fields_ = [("data", POINTER(c_ubyte)), ("size", c_uint)]
+
+    def __init__(self, buf=None):
+        if buf:
+            self.data = cast(c_char_p(buf), POINTER(c_ubyte))
+            self.size = c_uint(len(buf))
 
     def get_string_and_free(self):
         res = string_at(self.data, self.size)
