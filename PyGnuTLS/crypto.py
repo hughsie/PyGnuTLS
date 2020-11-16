@@ -977,7 +977,7 @@ class Cipher(CWrapper):
         gnutls_cipher_decrypt2(
             self._c_object,
             c_char_p(cipher_text),
-            c_size_t(cipher_text),
+            c_size_t(len(cipher_text)),
             pt,
             c_size_t(len(pt)),
         )
