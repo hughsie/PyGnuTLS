@@ -9,6 +9,7 @@ FLASK=$(VENV)/bin/flask
 BLACK=$(VENV)/bin/black
 FLAKE8=$(VENV)/bin/flake8
 MYPY=$(VENV)/bin/mypy
+STUBGEN=$(VENV)/bin/stubgen
 
 setup:
 	virtualenv ./env
@@ -27,3 +28,7 @@ check: $(PYTEST)
 	$(PYTEST)
 	$(MYPY) PyGnuTLS
 	$(FLAKE8)
+
+pkg: $(STUBGEN)
+	$(STUBGEN) --output . --package PyGnuTLS
+	$(PYTHON) setup.py sdist bdist_wheel

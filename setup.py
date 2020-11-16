@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name="PyGnuTLS",
-    version="0.1.0",
+    version="0.1.1",
     description="Python wrapper for the GnuTLS library",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -20,5 +20,19 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Intended Audience :: Developers",
     ],
-    python_requires='>=3.5',
+    python_requires=">=3.5",
+    package_data={
+        "PyGnuTLS": [
+            "py.typed",
+            "connection.pyi",
+            "crypto.pyi",
+            "errors.pyi",
+            "__init__.pyi",
+            "library/constants.pyi",
+            "library/errors.pyi",
+            "library/functions.pyi",
+            "library/__init__.pyi",
+            "library/types.pyi",
+        ]
+    },
 )

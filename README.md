@@ -10,5 +10,5 @@ and credentials and expose them to python applications using a simple API.
 
 These notes are probably only for the maintainer of this module!
 
-    ./env/bin/python setup.py sdist bdist_wheel
+    make pkg
     ./env/bin/twine upload dist/*
