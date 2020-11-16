@@ -26,9 +26,6 @@ ssize_t = c_long
 
 gnutls_openpgp_keyid_t = c_ubyte * 8
 gnutls_pkcs7_attrs_t = c_void_p
-gnutls_pkcs7_t = c_void_p
-gnutls_privkey_t = c_void_p
-gnutls_pubkey_t = c_void_p
 gnutls_transport_ptr_t = c_void_p
 gnutls_typed_vdata_st = c_void_p
 gnutls_x509_dn_t = c_void_p
