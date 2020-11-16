@@ -48,14 +48,14 @@ class TestSigning(unittest.TestCase):
             ]:
                 signature = privkey.sign_data(hash_algo, 0, teststring)
                 self.assertEqual(len(signature), bits / 8)
-                pubkey.verify_data2(sign_algo, 0, teststring, signature)
+                pubkey.verify_data2(sign_algo, GNUTLS_VERIFY_ALLOW_BROKEN, teststring, signature)
 
                 myhash = hashfunc(teststring).digest()
-                pubkey.verify_hash2(sign_algo, 0, myhash, signature)
+                pubkey.verify_hash2(sign_algo, GNUTLS_VERIFY_ALLOW_BROKEN, myhash, signature)
 
                 signature2 = privkey.sign_hash(hash_algo, 0, myhash)
                 self.assertEqual(len(signature2), bits / 8)
-                pubkey.verify_hash2(sign_algo, 0, myhash, signature2)
+                pubkey.verify_hash2(sign_algo, GNUTLS_VERIFY_ALLOW_BROKEN, myhash, signature2)
 
     def test_generate_dsa_and_sign(self):
         teststring = b"foobar"
