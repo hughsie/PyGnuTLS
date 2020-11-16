@@ -8,6 +8,7 @@ SPHINX_BUILD=$(VENV)/bin/sphinx-build
 FLASK=$(VENV)/bin/flask
 BLACK=$(VENV)/bin/black
 FLAKE8=$(VENV)/bin/flake8
+MYPY=$(VENV)/bin/mypy
 
 setup:
 	virtualenv ./env
@@ -24,4 +25,5 @@ blacken:
 
 check: $(PYTEST)
 	$(PYTEST)
+	$(MYPY) PyGnuTLS
 	$(FLAKE8)

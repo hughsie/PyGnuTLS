@@ -58,7 +58,7 @@ class ErrorHandler(object):
     }
 
     @classmethod
-    def check_status(cls, retcode, function, args):
+    def check_status(cls, retcode: int, function, args) -> int:
         if retcode >= 0:
             return retcode
         elif retcode == -1:

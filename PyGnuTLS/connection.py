@@ -12,6 +12,8 @@ __all__ = [
 from time import time
 from socket import SHUT_RDWR
 
+from typing import Optional
+
 from _ctypes import PyObj_FromPtr
 from ctypes import (
     c_char_p,
@@ -302,7 +304,7 @@ class Session(object):
     """Abstract class representing a TLS session created from a TCP socket
        and a Credentials object."""
 
-    session_type = (
+    session_type: Optional[int] = (
         None  # placeholder for GNUTLS_SERVER or GNUTLS_CLIENT as defined by subclass
     )
 

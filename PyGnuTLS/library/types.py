@@ -76,35 +76,35 @@ gnutls_openpgp_crt_fmt_t = gnutls_openpgp_crt_fmt
 
 
 class gnutls_session_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_session_t = POINTER(gnutls_session_int)
 
 
 class gnutls_ia_server_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_ia_server_credentials_t = POINTER(gnutls_ia_server_credentials_st)
 
 
 class gnutls_ia_client_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_ia_client_credentials_t = POINTER(gnutls_ia_client_credentials_st)
 
 
 class gnutls_dh_params_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_dh_params_t = POINTER(gnutls_dh_params_int)
 
 
 class gnutls_x509_privkey_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_x509_privkey_t = POINTER(gnutls_x509_privkey_int)
@@ -116,14 +116,14 @@ class params(Union):
 
 
 class gnutls_pkcs11_privkey_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_pkcs11_privkey_t = POINTER(gnutls_pkcs11_privkey_st)
 
 
 class gnutls_priority_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_priority_t = POINTER(gnutls_priority_st)
@@ -149,7 +149,7 @@ class gnutls_params_st(Structure):
 
 
 class gnutls_certificate_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_certificate_credentials_t = POINTER(gnutls_certificate_credentials_st)
@@ -158,105 +158,105 @@ gnutls_certificate_client_credentials = gnutls_certificate_credentials_t
 
 
 class gnutls_anon_server_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_anon_server_credentials_t = POINTER(gnutls_anon_server_credentials_st)
 
 
 class gnutls_anon_client_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_anon_client_credentials_t = POINTER(gnutls_anon_client_credentials_st)
 
 
 class gnutls_x509_crl_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_x509_crl_t = POINTER(gnutls_x509_crl_int)
 
 
 class gnutls_x509_crt_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_x509_crt_t = POINTER(gnutls_x509_crt_int)
 
 
 class gnutls_openpgp_keyring_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_openpgp_keyring_t = POINTER(gnutls_openpgp_keyring_int)
 
 
 class gnutls_srp_server_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_srp_server_credentials_t = POINTER(gnutls_srp_server_credentials_st)
 
 
 class gnutls_srp_client_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_srp_client_credentials_t = POINTER(gnutls_srp_client_credentials_st)
 
 
 class gnutls_psk_server_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_psk_server_credentials_t = POINTER(gnutls_psk_server_credentials_st)
 
 
 class gnutls_psk_client_credentials_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_psk_client_credentials_t = POINTER(gnutls_psk_client_credentials_st)
 
 
 class gnutls_openpgp_crt_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_openpgp_crt_t = POINTER(gnutls_openpgp_crt_int)
 
 
 class gnutls_openpgp_privkey_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_openpgp_privkey_t = POINTER(gnutls_openpgp_privkey_int)
 
 
 class api_cipher_hd_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_cipher_hd_t = POINTER(api_cipher_hd_st)
 
 
 class api_aead_cipher_hd_st(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_aead_cipher_hd_t = POINTER(api_aead_cipher_hd_st)
 
 
 class gnutls_privkey_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_privkey_t = POINTER(gnutls_privkey_int)
 
 
 class gnutls_pubkey_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_pubkey_t = POINTER(gnutls_pubkey_int)
@@ -294,7 +294,7 @@ class gnutls_x509_ava_st(Structure):
 
 
 class gnutls_pkcs7_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_pkcs7_t = POINTER(gnutls_pkcs7_int)
@@ -318,7 +318,7 @@ gnutls_pkcs7_signature_info_t = POINTER(gnutls_pkcs7_signature_info_st)
 
 
 class gnutls_x509_crq_int(Structure):
-    _fields_ = []
+    _fields_ = []  # type: ignore
 
 
 gnutls_x509_crq_t = POINTER(gnutls_x509_crq_int)

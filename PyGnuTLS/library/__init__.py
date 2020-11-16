@@ -3,7 +3,7 @@ from itertools import chain
 __all__ = ["constants", "errors", "functions", "types"]
 
 
-def _get_system_name():
+def _get_system_name() -> str:
     import platform
 
     system = platform.system().lower()
@@ -81,13 +81,13 @@ from PyGnuTLS.library import types
 
 __need_version__ = "3.2.0"
 
-if functions.gnutls_check_version(__need_version__.encode()) is None:
-    version = functions.gnutls_check_version(None)
+if functions.gnutls_check_version(__need_version__.encode()) is None:   # type: ignore
+    version = functions.gnutls_check_version(None)                      # type: ignore
     raise RuntimeError(
         "Found GNUTLS library version %s, but at least version %s is required"
         % (version, __need_version__)
     )
 
 # calling gnutls_global_init is no longer required starting with gnutls 3.3
-if functions.gnutls_check_version("3.3".encode()) is None:
+if functions.gnutls_check_version("3.3".encode()) is None:              # type: ignore
     libgnutls.gnutls_global_init()
