@@ -10,7 +10,7 @@ __all__ = [
 ]
 
 from time import time
-from socket import GNUTLS_SHUT_RDWR as SOCKET_SHUT_RDWR
+from socket import SHUT_RDWR
 
 from _ctypes import PyObj_FromPtr
 from ctypes import (
@@ -431,7 +431,7 @@ class Session(object):
     def bye(self, how=GNUTLS_SHUT_RDWR):
         gnutls_bye(self._c_object, how)
 
-    def shutdown(self, how=SOCKET_SHUT_RDWR):
+    def shutdown(self, how=SHUT_RDWR):
         self.socket.shutdown(how)
 
     def close(self):
@@ -534,7 +534,7 @@ class ServerSessionFactory(object):
         session = self.session_class(new_sock, self.context)
         return (session, address)
 
-    def shutdown(self, how=SOCKET_SHUT_RDWR):
+    def shutdown(self, how=SHUT_RDWR):
         self.socket.shutdown(how)
 
     def close(self):
