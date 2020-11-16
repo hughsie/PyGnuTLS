@@ -404,7 +404,7 @@ class Pkcs7(CWrapper):
                 flags,
             )
 
-    def export(self, format: int = GNUTLS_X509_FMT_PEM) -> Union[str, bytes]:
+    def export(self, format: int = GNUTLS_X509_FMT_PEM) -> bytes:
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
         try:
