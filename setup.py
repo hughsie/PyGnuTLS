@@ -21,6 +21,8 @@ setuptools.setup(
         "Intended Audience :: Developers",
     ],
     python_requires=">=3.5",
+    include_package_data=True,
+    zip_safe=False,
     package_data={
         "PyGnuTLS": [
             "py.typed",
