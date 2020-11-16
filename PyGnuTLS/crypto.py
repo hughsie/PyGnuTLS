@@ -226,7 +226,7 @@ class AlternativeNames(object):
             setattr(self, name, tuple(names.get(key, ())))
 
 
-class X509TrustList(object):
+class X509TrustList(CWrapper):
     def __new__(cls, *args, **kwargs):
         instance = object.__new__(cls)
         instance.__deinit = gnutls_x509_trust_list_deinit
@@ -305,7 +305,7 @@ class Pkcs7SignatureInfo(CWrapper):
         return _gnutls_datum_t_hex_encode(self._c_object.issuer_keyid)
 
 
-class Pkcs7(object):
+class Pkcs7(CWrapper):
     def __new__(cls, *args, **kwargs):
         instance = object.__new__(cls)
         instance.__deinit = gnutls_pkcs7_deinit
@@ -699,7 +699,7 @@ class DSAPublicKey(PublicKey):
         )
 
 
-class X509Certificate(object):
+class X509Certificate(CWrapper):
     def __new__(cls, *args, **kwargs):
         instance = object.__new__(cls)
         instance.__deinit = gnutls_x509_crt_deinit
@@ -824,7 +824,7 @@ class X509Certificate(object):
         return pemdata.raw[: size.value]
 
 
-class X509PrivateKey(object):
+class X509PrivateKey(CWrapper):
     def __new__(cls, *args, **kwargs):
         instance = object.__new__(cls)
         instance.__deinit = gnutls_x509_privkey_deinit
@@ -874,7 +874,7 @@ class X509Identity(object):
         object.__delattr__(self, name)
 
 
-class X509CRL(object):
+class X509CRL(CWrapper):
     def __new__(cls, *args, **kwargs):
         instance = object.__new__(cls)
         instance.__deinit = gnutls_x509_crl_deinit
@@ -934,7 +934,7 @@ class X509CRL(object):
         return pemdata.raw[: size.value]
 
 
-class DHParams(object):
+class DHParams(CWrapper):
     def __new__(cls, *args, **kwargs):
         instance = object.__new__(cls)
         instance.__deinit = gnutls_dh_params_deinit
