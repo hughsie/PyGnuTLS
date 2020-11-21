@@ -242,10 +242,10 @@ class X509TrustList(CWrapper):
     def __del__(self):
         self.__deinit(self._c_object, 0)
 
-    def add_ca(self, cert: "X509Certificate", flags: int = 0):
+    def add_ca(self, cert: "X509Certificate", flags: int = 0) -> None:
         gnutls_x509_trust_list_add_cas(self._c_object, byref(cert._c_object), 1, flags)
 
-    def add_certificate(self, cert: "X509Certificate", flags: int = 0):
+    def add_certificate(self, cert: "X509Certificate", flags: int = 0) -> None:
 
         # mrrrggg, we have to export the certificate to a blob
         buf = cert.export()
@@ -327,10 +327,10 @@ class Pkcs7(CWrapper):
 
     def sign(
         self,
-        cert,
+        cert: "X509Certificate",
         privkey: Union["X509PrivateKey", "PrivateKey"],
         buf: bytes,
-        hash_algo: int = None,
+        hash_algo: Optional[int] = None,
         flags: int = 0,
     ) -> None:
 
@@ -371,7 +371,7 @@ class Pkcs7(CWrapper):
 
     def verify_direct(
         self, cert: "X509Certificate", buf: bytes, idx: int = -1, flags: int = 0
-    ):
+    ) -> None:
         data = gnutls_datum_t(buf)
 
         # by default, check all signatures in context
@@ -484,7 +484,7 @@ class PrivateKey(object):
         return pk.upcast(algo, pk)
 
     @classmethod
-    def pk_algorithm_to_keytype(cls, algo: int):
+    def pk_algorithm_to_keytype(cls, algo: int) -> int:
         if algo in [GNUTLS_PK_RSA, GNUTLS_PK_RSA_PSS]:
             return PrivateKey.KEY_TYPE_RSA
         if algo in [GNUTLS_PK_DSA]:
@@ -630,7 +630,9 @@ class PublicKey(object):
         return pubkey
 
     @staticmethod
-    def import_uri(uri: str, flags: int = 0, srk_password: str = None):
+    def import_uri(
+        uri: str, flags: int = 0, srk_password: Optional[str] = None
+    ) -> Union["PublicKey", "RSAPublicKey", "DSAPublicKey"]:
         pubkey = PublicKey()
         if not srk_password:
             gnutls_pubkey_import_url(pubkey._c_object, uri, flags)
@@ -639,7 +641,9 @@ class PublicKey(object):
         algo = gnutls_pubkey_get_pk_algorithm(pubkey._c_object, None)
         return pubkey.upcast(algo, pubkey)
 
-    def verify_data2(self, sign_algo: int, flags: int, buf: bytes, signature):
+    def verify_data2(
+        self, sign_algo: int, flags: int, buf: bytes, signature: bytes
+    ) -> None:
         gnutls_pubkey_verify_data2(
             self._c_object,
             sign_algo,
@@ -650,7 +654,7 @@ class PublicKey(object):
 
     def verify_hash2(
         self, sign_algo: int, flags: int, hashbuf: bytes, signature: bytes
-    ):
+    ) -> None:
         gnutls_pubkey_verify_hash2(
             self._c_object,
             sign_algo,
@@ -691,7 +695,7 @@ class DSAPublicKey(PublicKey):
         super(DSAPublicKey, self).__init__(pubkey=pubkey)
 
     @staticmethod
-    def import_dsa_raw(p: bytes, q: bytes, g: bytes, y: bytes):
+    def import_dsa_raw(p: bytes, q: bytes, g: bytes, y: bytes) -> "DSAPublicKey":
         pubkey = PublicKey()
         gnutls_pubkey_import_dsa_raw(
             pubkey._c_object,
@@ -932,12 +936,14 @@ class X509CRL(CWrapper):
             gnutls_x509_crt_check_revocation(cert._c_object, byref(self._c_object), 1)
         )
 
-    def check_revocation(self, cert: X509Certificate, cert_name: str = "certificate"):
+    def check_revocation(
+        self, cert: X509Certificate, cert_name: str = "certificate"
+    ) -> None:
         """Raise CertificateRevokedError if the given certificate is revoked"""
         if self.is_revoked(cert):
             raise CertificateRevokedError("%s was revoked" % cert_name)
 
-    def export(self, format: int = GNUTLS_X509_FMT_PEM):
+    def export(self, format: int = GNUTLS_X509_FMT_PEM) -> bytes:
         size = c_size_t(4096)
         pemdata = create_string_buffer(size.value)
         try:
@@ -984,10 +990,10 @@ class Cipher(CWrapper):
         self.algorithm = algo
         self.deinit = gnutls_cipher_deinit
 
-    def set_iv(self, iv: bytes):
+    def set_iv(self, iv: bytes) -> None:
         gnutls_cipher_set_iv(self._c_object, c_char_p(iv), c_size_t(len(iv)))
 
-    def add_auth(self, auth: bytes):
+    def add_auth(self, auth: bytes) -> None:
         gnutls_cipher_add_auth(self._c_object, c_char_p(auth), c_size_t(len(auth)))
 
     def decrypt(self, cipher_text: bytes) -> bytes:
@@ -1013,7 +1019,7 @@ class Cipher(CWrapper):
         )
         return ct.value
 
-    def cipher_tag(self, tag_size: int):
+    def cipher_tag(self, tag_size: int) -> bytes:
         assert tag_size > 0
         tag = create_string_buffer(tag_size)
         gnutls_cipher_tag(self._c_object, tag, c_size_t(tag_size))
