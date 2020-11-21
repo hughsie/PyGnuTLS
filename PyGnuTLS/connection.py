@@ -302,11 +302,11 @@ class TLSContext(object):
 
 class Session(object):
     """Abstract class representing a TLS session created from a TCP socket
-       and a Credentials object."""
+    and a Credentials object."""
 
-    session_type: Optional[int] = (
-        None  # placeholder for GNUTLS_SERVER or GNUTLS_CLIENT as defined by subclass
-    )
+    session_type: Optional[
+        int
+    ] = None  # placeholder for GNUTLS_SERVER or GNUTLS_CLIENT as defined by subclass
 
     def __new__(cls, *args, **kwargs):
         if cls is Session:

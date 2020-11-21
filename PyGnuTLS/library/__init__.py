@@ -81,13 +81,13 @@ from PyGnuTLS.library import types
 
 __need_version__ = "3.2.0"
 
-if functions.gnutls_check_version(__need_version__.encode()) is None:   # type: ignore
-    version = functions.gnutls_check_version(None)                      # type: ignore
+if functions.gnutls_check_version(__need_version__.encode()) is None:  # type: ignore
+    version = functions.gnutls_check_version(None)  # type: ignore
     raise RuntimeError(
         "Found GNUTLS library version %s, but at least version %s is required"
         % (version, __need_version__)
     )
 
 # calling gnutls_global_init is no longer required starting with gnutls 3.3
-if functions.gnutls_check_version("3.3".encode()) is None:              # type: ignore
+if functions.gnutls_check_version("3.3".encode()) is None:  # type: ignore
     libgnutls.gnutls_global_init()

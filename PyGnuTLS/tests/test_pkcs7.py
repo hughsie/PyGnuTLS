@@ -90,7 +90,8 @@ class TestPkcs7(unittest.TestCase):
             str(info.issuer_dn), "O=Linux Vendor Firmware Project,CN=LVFS CA"
         )
         self.assertEqual(
-            info.signer_serial, "599d8e581c817895df746555",
+            info.signer_serial,
+            "599d8e581c817895df746555",
         )
 
 
