@@ -5,7 +5,6 @@ VENV=./env
 PYTHON=$(VENV)/bin/python
 PYTEST=$(VENV)/bin/pytest
 SPHINX_BUILD=$(VENV)/bin/sphinx-build
-FLASK=$(VENV)/bin/flask
 BLACK=$(VENV)/bin/black
 FLAKE8=$(VENV)/bin/flake8
 MYPY=$(VENV)/bin/mypy
