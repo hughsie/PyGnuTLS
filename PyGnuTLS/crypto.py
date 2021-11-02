@@ -794,7 +794,7 @@ class X509Certificate(CWrapper):
         gnutls_x509_crt_get_serial(
             self._c_object, cast(byref(serial), c_void_p), byref(size)
         )
-        return serial.value.hex().lstrip("0")
+        return serial.value.hex()
 
     @property
     def activation_time(self) -> int:
