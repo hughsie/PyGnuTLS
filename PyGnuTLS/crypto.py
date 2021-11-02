@@ -52,29 +52,40 @@ from PyGnuTLS.library.constants import (
     GNUTLS_X509_FMT_PEM,
 )
 
-from PyGnuTLS.library.types import gnutls_pkcs7_signature_info_st, gnutls_x509_dn_t
+from PyGnuTLS.library.types import (
+    gnutls_aead_cipher_hd_t,
+    gnutls_cipher_hd_t,
+    gnutls_datum_t,
+    gnutls_dh_params_t,
+    gnutls_digest_algorithm_t,
+    gnutls_pkcs7_signature_info_st,
+    gnutls_pkcs7_t,
+    gnutls_privkey_t,
+    gnutls_pubkey_t,
+    gnutls_typed_vdata_st,
+    gnutls_x509_crl_t,
+    gnutls_x509_crt_t,
+    gnutls_x509_dn_t,
+    gnutls_x509_privkey_t,
+    gnutls_x509_trust_list_t,
+)
 
 from PyGnuTLS.library.functions import (
     gnutls_aead_cipher_decrypt,
     gnutls_aead_cipher_deinit,
     gnutls_aead_cipher_encrypt,
-    gnutls_aead_cipher_hd_t,
     gnutls_aead_cipher_init,
     gnutls_cipher_add_auth,
     gnutls_cipher_decrypt2,
     gnutls_cipher_deinit,
     gnutls_cipher_encrypt2,
     gnutls_cipher_get_block_size,
-    gnutls_cipher_hd_t,
     gnutls_cipher_init,
     gnutls_cipher_set_iv,
     gnutls_cipher_tag,
-    gnutls_datum_t,
     gnutls_dh_params_deinit,
     gnutls_dh_params_generate2,
     gnutls_dh_params_init,
-    gnutls_dh_params_t,
-    gnutls_digest_algorithm_t,
     gnutls_hex_encode2,
     gnutls_pkcs7_deinit,
     gnutls_pkcs7_export,
@@ -84,7 +95,6 @@ from PyGnuTLS.library.functions import (
     gnutls_pkcs7_init,
     gnutls_pkcs7_sign,
     gnutls_pkcs7_signature_info_deinit,
-    gnutls_pkcs7_t,
     gnutls_pkcs7_verify,
     gnutls_pkcs7_verify_direct,
     gnutls_privkey_decrypt_data,
@@ -99,7 +109,6 @@ from PyGnuTLS.library.functions import (
     gnutls_privkey_init,
     gnutls_privkey_sign_data,
     gnutls_privkey_sign_hash,
-    gnutls_privkey_t,
     gnutls_pubkey_deinit,
     gnutls_pubkey_encrypt_data,
     gnutls_pubkey_export_dsa_raw,
@@ -112,10 +121,8 @@ from PyGnuTLS.library.functions import (
     gnutls_pubkey_import_url,
     gnutls_pubkey_import_x509,
     gnutls_pubkey_init,
-    gnutls_pubkey_t,
     gnutls_pubkey_verify_data2,
     gnutls_pubkey_verify_hash2,
-    gnutls_typed_vdata_st,
     gnutls_x509_crl_deinit,
     gnutls_x509_crl_export,
     gnutls_x509_crl_get_crt_count,
@@ -123,7 +130,6 @@ from PyGnuTLS.library.functions import (
     gnutls_x509_crl_get_version,
     gnutls_x509_crl_import,
     gnutls_x509_crl_init,
-    gnutls_x509_crl_t,
     gnutls_x509_crt_check_hostname,
     gnutls_x509_crt_check_issuer,
     gnutls_x509_crt_check_revocation,
@@ -138,7 +144,6 @@ from PyGnuTLS.library.functions import (
     gnutls_x509_crt_get_version,
     gnutls_x509_crt_import,
     gnutls_x509_crt_init,
-    gnutls_x509_crt_t,
     gnutls_x509_dn_deinit,
     gnutls_x509_dn_get_str2,
     gnutls_x509_dn_import,
@@ -147,12 +152,10 @@ from PyGnuTLS.library.functions import (
     gnutls_x509_privkey_export,
     gnutls_x509_privkey_import,
     gnutls_x509_privkey_init,
-    gnutls_x509_privkey_t,
     gnutls_x509_trust_list_add_cas,
     gnutls_x509_trust_list_add_trust_mem,
     gnutls_x509_trust_list_deinit,
     gnutls_x509_trust_list_init,
-    gnutls_x509_trust_list_t,
 )
 
 
@@ -794,7 +797,7 @@ class X509Certificate(CWrapper):
         gnutls_x509_crt_get_serial(
             self._c_object, cast(byref(serial), c_void_p), byref(size)
         )
-        return serial.value.hex().lstrip("0")
+        return serial.value.hex()
 
     @property
     def activation_time(self) -> int:
