@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name="PyGnuTLS",
-    version="0.1.3",
+    version="0.1.4",
     description="Python wrapper for the GnuTLS library",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

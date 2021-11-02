@@ -10,5 +10,7 @@ and credentials and expose them to python applications using a simple API.
 
 These notes are probably only for the maintainer of this module!
 
+    # set version in setup.py
     make pkg
     ./env/bin/twine upload dist/*
+    git commit -a -m "New version for PyPI" && git push
