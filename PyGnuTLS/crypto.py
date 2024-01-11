@@ -203,7 +203,7 @@ class X509Name(str, metaclass=X509NameMeta):
             try:
                 name, value = pair.split("=", 1)
             except ValueError:
-                raise ValueError("Invalid X509 distinguished name: %s" % dname)
+                raise ValueError(f"Invalid X509 distinguished name: {dname}")
             str.__setattr__(self, name, value)
         for name in X509Name.ids:
             if not hasattr(self, name):
@@ -249,7 +249,6 @@ class X509TrustList(CWrapper):
         gnutls_x509_trust_list_add_cas(self._c_object, byref(cert._c_object), 1, flags)
 
     def add_certificate(self, cert: "X509Certificate", flags: int = 0) -> None:
-
         # mrrrggg, we have to export the certificate to a blob
         buf = cert.export()
         data = gnutls_datum_t(buf)
@@ -336,7 +335,6 @@ class Pkcs7(CWrapper):
         hash_algo: Optional[int] = None,
         flags: int = 0,
     ) -> None:
-
         # auto detect the best algorithm to use
         if hash_algo is None:
             pubkey = PublicKey()
@@ -787,7 +785,6 @@ class X509Certificate(CWrapper):
 
     @property
     def serial_number(self) -> str:
-
         size = c_size_t(1)
         try:
             gnutls_x509_crt_get_serial(self._c_object, None, byref(size))
@@ -944,7 +941,7 @@ class X509CRL(CWrapper):
     ) -> None:
         """Raise CertificateRevokedError if the given certificate is revoked"""
         if self.is_revoked(cert):
-            raise CertificateRevokedError("%s was revoked" % cert_name)
+            raise CertificateRevokedError(f"{cert_name} was revoked")
 
     def export(self, format: int = GNUTLS_X509_FMT_PEM) -> bytes:
         size = c_size_t(4096)

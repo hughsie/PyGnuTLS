@@ -167,7 +167,8 @@ class X509Credentials(object):
 
     def __init__(self, cert=None, key=None, trusted=[], crl_list=[], identities=[]):
         """Credentials contain a X509 certificate, a private key, a list of trusted CAs and a list of CRLs (all optional).
-        An optional list of additional X509 identities can be specified for applications that need more that one identity"""
+        An optional list of additional X509 identities can be specified for applications that need more that one identity
+        """
         if cert and key:
             gnutls_certificate_set_x509_key(
                 self._c_object, byref(cert._c_object), 1, key._c_object
@@ -255,15 +256,16 @@ class X509Credentials(object):
         """Verify activation, expiration and revocation for the given certificate"""
         now = time()
         if cert.activation_time > now:
-            raise CertificateExpiredError("%s is not yet activated" % cert_name)
+            raise CertificateExpiredError(f"{cert_name} is not yet activated")
         if cert.expiration_time < now:
-            raise CertificateExpiredError("%s has expired" % cert_name)
+            raise CertificateExpiredError(f"{cert_name} has expired")
         for crl in self.crl_list:
             crl.check_revocation(cert, cert_name=cert_name)
 
     def select_server_identity(self, session):
         """Select which identity the server will use for a given session. The default selection algorithm uses
-        the server name extension. A subclass can overwrite it if a different selection algorithm is desired."""
+        the server name extension. A subclass can overwrite it if a different selection algorithm is desired.
+        """
         server_name = session.server_name
         if server_name is not None:
             return self.server_name_identities.get(server_name)
@@ -294,7 +296,7 @@ class TLSContext(object):
         try:
             gnutls_priority_init(byref(priority), value, None)
         except GNUTLSError:
-            raise ValueError("invalid session parameters: %s" % value)
+            raise ValueError(f"invalid session parameters: {value}")
         else:
             gnutls_priority_deinit(priority)
         self.__dict__["session_parameters"] = value
@@ -494,7 +496,7 @@ class ServerSession(Session):
         data_length = c_size_t(256)
         data = create_string_buffer(data_length.value)
         hostname_type = c_uint()
-        for i in range(2 ** 16):
+        for i in range(2**16):
             try:
                 gnutls_server_name_get(
                     self._c_object, data, byref(data_length), byref(hostname_type), i
