@@ -249,7 +249,6 @@ class X509TrustList(CWrapper):
         gnutls_x509_trust_list_add_cas(self._c_object, byref(cert._c_object), 1, flags)
 
     def add_certificate(self, cert: "X509Certificate", flags: int = 0) -> None:
-
         # mrrrggg, we have to export the certificate to a blob
         buf = cert.export()
         data = gnutls_datum_t(buf)
@@ -336,7 +335,6 @@ class Pkcs7(CWrapper):
         hash_algo: Optional[int] = None,
         flags: int = 0,
     ) -> None:
-
         # auto detect the best algorithm to use
         if hash_algo is None:
             pubkey = PublicKey()
@@ -787,7 +785,6 @@ class X509Certificate(CWrapper):
 
     @property
     def serial_number(self) -> str:
-
         size = c_size_t(1)
         try:
             gnutls_x509_crt_get_serial(self._c_object, None, byref(size))
