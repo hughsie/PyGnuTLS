@@ -203,7 +203,7 @@ class X509Name(str, metaclass=X509NameMeta):
             try:
                 name, value = pair.split("=", 1)
             except ValueError:
-                raise ValueError("Invalid X509 distinguished name: %s" % dname)
+                raise ValueError(f"Invalid X509 distinguished name: {dname}")
             str.__setattr__(self, name, value)
         for name in X509Name.ids:
             if not hasattr(self, name):
@@ -944,7 +944,7 @@ class X509CRL(CWrapper):
     ) -> None:
         """Raise CertificateRevokedError if the given certificate is revoked"""
         if self.is_revoked(cert):
-            raise CertificateRevokedError("%s was revoked" % cert_name)
+            raise CertificateRevokedError(f"{cert_name} was revoked")
 
     def export(self, format: int = GNUTLS_X509_FMT_PEM) -> bytes:
         size = c_size_t(4096)

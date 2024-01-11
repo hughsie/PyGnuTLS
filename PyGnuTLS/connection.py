@@ -255,9 +255,9 @@ class X509Credentials(object):
         """Verify activation, expiration and revocation for the given certificate"""
         now = time()
         if cert.activation_time > now:
-            raise CertificateExpiredError("%s is not yet activated" % cert_name)
+            raise CertificateExpiredError(f"{cert_name} is not yet activated")
         if cert.expiration_time < now:
-            raise CertificateExpiredError("%s has expired" % cert_name)
+            raise CertificateExpiredError(f"{cert_name} has expired")
         for crl in self.crl_list:
             crl.check_revocation(cert, cert_name=cert_name)
 
@@ -294,7 +294,7 @@ class TLSContext(object):
         try:
             gnutls_priority_init(byref(priority), value, None)
         except GNUTLSError:
-            raise ValueError("invalid session parameters: %s" % value)
+            raise ValueError(f"invalid session parameters: {value}")
         else:
             gnutls_priority_deinit(priority)
         self.__dict__["session_parameters"] = value
